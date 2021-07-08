@@ -46,6 +46,7 @@ public abstract class AbsReconnection extends SocketActionListener implements IR
 
     /**
      * 是否正在重连
+     *
      * @return
      */
     public abstract boolean isReconning();

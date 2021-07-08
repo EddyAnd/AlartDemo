@@ -36,13 +36,17 @@ public abstract class SuperConnection implements IConnectionManager {
      */
     protected final AtomicInteger connectionStatus = new AtomicInteger(SocketStatus.SOCKET_DISCONNECTED);
     /**
-     * 连接线程
-     */
-    private ExecutorService connExecutor;
-    /**
      * socket地址信息
      */
     protected SocketAddress socketAddress;
+    /**
+     * 配置信息
+     */
+    protected EasySocketOptions socketOptions;
+    /**
+     * 连接线程
+     */
+    private ExecutorService connExecutor;
     /**
      * socket行为分发器
      */
@@ -60,10 +64,6 @@ public abstract class SuperConnection implements IConnectionManager {
      */
     private HeartManager heartManager;
     /**
-     * 配置信息
-     */
-    protected EasySocketOptions socketOptions;
-    /**
      * socket回调消息的分发器
      */
     private CallbackResponseDispatcher callbackResponseDispatcher;
@@ -71,6 +71,23 @@ public abstract class SuperConnection implements IConnectionManager {
      * 连接切换的监听
      */
     private IConnectionSwitchListener connectionSwitchListener;
+    // 连接任务
+    private Runnable connTask = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                openConnection();
+            } catch (Exception e) {
+                // 连接异常
+                e.printStackTrace();
+                LogUtil.d("---> socket连接失败");
+                connectionStatus.set(SocketStatus.SOCKET_DISCONNECTED);
+                // 第二个参数指需要重连
+                actionDispatcher.dispatchAction(SocketAction.ACTION_CONN_FAIL, new Boolean(true));
+
+            }
+        }
+    };
 
     public SuperConnection(SocketAddress socketAddress) {
         this.socketAddress = socketAddress;
@@ -174,61 +191,6 @@ public abstract class SuperConnection implements IConnectionManager {
     }
 
     /**
-     * 断开连接线程
-     */
-    private class DisconnectThread extends Thread {
-        boolean isNeedReconnect; // 当前连接的断开是否需要自动重连
-
-        public DisconnectThread(boolean isNeedReconnect, String name) {
-            super(name);
-            this.isNeedReconnect = isNeedReconnect;
-        }
-
-        @Override
-        public void run() {
-            try {
-                // 关闭io线程
-                if (ioManager != null)
-                    ioManager.closeIO();
-                // 关闭回调分发器线程
-                if (callbackResponseDispatcher != null)
-                    callbackResponseDispatcher.shutdownThread();
-                // 关闭连接线程
-                if (connExecutor != null && !connExecutor.isShutdown()) {
-                    connExecutor.shutdown();
-                    connExecutor = null;
-                }
-                // 关闭连接
-                closeConnection();
-                LogUtil.d("---> 关闭socket连接");
-                connectionStatus.set(SocketStatus.SOCKET_DISCONNECTED);
-                actionDispatcher.dispatchAction(SocketAction.ACTION_DISCONNECTION, new Boolean(isNeedReconnect));
-            } catch (IOException e) {
-                // 断开连接发生异常
-                e.printStackTrace();
-            }
-        }
-    }
-
-    // 连接任务
-    private Runnable connTask = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                openConnection();
-            } catch (Exception e) {
-                // 连接异常
-                e.printStackTrace();
-                LogUtil.d("---> socket连接失败");
-                connectionStatus.set(SocketStatus.SOCKET_DISCONNECTED);
-                // 第二个参数指需要重连
-                actionDispatcher.dispatchAction(SocketAction.ACTION_CONN_FAIL, new Boolean(true));
-
-            }
-        }
-    };
-
-    /**
      * 连接成功
      */
     protected void onConnectionOpened() {
@@ -317,7 +279,6 @@ public abstract class SuperConnection implements IConnectionManager {
         callbackResponseDispatcher.addSocketCallback(callBack);
     }
 
-
     @Override
     public synchronized IConnectionManager upBytes(byte[] bytes) {
         sendBytes(bytes);
@@ -332,9 +293,45 @@ public abstract class SuperConnection implements IConnectionManager {
         return this;
     }
 
-
     @Override
     public HeartManager getHeartManager() {
         return heartManager;
+    }
+
+    /**
+     * 断开连接线程
+     */
+    private class DisconnectThread extends Thread {
+        boolean isNeedReconnect; // 当前连接的断开是否需要自动重连
+
+        public DisconnectThread(boolean isNeedReconnect, String name) {
+            super(name);
+            this.isNeedReconnect = isNeedReconnect;
+        }
+
+        @Override
+        public void run() {
+            try {
+                // 关闭io线程
+                if (ioManager != null)
+                    ioManager.closeIO();
+                // 关闭回调分发器线程
+                if (callbackResponseDispatcher != null)
+                    callbackResponseDispatcher.shutdownThread();
+                // 关闭连接线程
+                if (connExecutor != null && !connExecutor.isShutdown()) {
+                    connExecutor.shutdown();
+                    connExecutor = null;
+                }
+                // 关闭连接
+                closeConnection();
+                LogUtil.d("---> 关闭socket连接");
+                connectionStatus.set(SocketStatus.SOCKET_DISCONNECTED);
+                actionDispatcher.dispatchAction(SocketAction.ACTION_DISCONNECTION, new Boolean(isNeedReconnect));
+            } catch (IOException e) {
+                // 断开连接发生异常
+                e.printStackTrace();
+            }
+        }
     }
 }

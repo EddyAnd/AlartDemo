@@ -13,5 +13,5 @@ public interface SocketStatus {
     // 已连接
     int SOCKET_CONNECTED = 2;
     // 正在断开连接
-    int SOCKET_DISCONNECTING =3;
+    int SOCKET_DISCONNECTING = 3;
 }

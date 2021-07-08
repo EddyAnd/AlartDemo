@@ -1,4 +1,4 @@
 include ':app',
-':easysocket',
-':socker_server'
+        ':easysocket',
+        ':socker_server'
 rootProject.name = "AlarmDemo"

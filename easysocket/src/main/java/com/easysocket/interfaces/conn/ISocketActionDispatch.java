@@ -19,6 +19,7 @@ public interface ISocketActionDispatch {
 
     /**
      * socket行为的分发
+     *
      * @param action
      * @param serializable
      */
@@ -26,12 +27,14 @@ public interface ISocketActionDispatch {
 
     /**
      * 订阅socket行为
+     *
      * @param iSocketActionListener
      */
     void subscribe(ISocketActionListener iSocketActionListener);
 
     /**
      * 解除socket行为的订阅
+     *
      * @param iSocketActionListener
      */
     void unsubscribe(ISocketActionListener iSocketActionListener);

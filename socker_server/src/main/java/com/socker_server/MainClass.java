@@ -15,15 +15,10 @@ public class MainClass {
     private static final int PORT1 = 9090;
     private static final int PORT2 = 9090;
     private List<Socket> mList = new ArrayList<Socket>();
-//    private ServerSocket server9999 = null;
+    //    private ServerSocket server9999 = null;
 //    private ServerSocket server9998 = null;
     private ExecutorService mExecutorService = null;
     private ExecutorService launchService;
-
-    public static void main(String[] args) {
-        new MainClass();
-        System.out.println("java running");
-    }
 
     public MainClass() {
         mExecutorService = Executors.newCachedThreadPool();
@@ -41,6 +36,11 @@ public class MainClass {
                 initServerSocket(PORT2);
             }
         });
+    }
+
+    public static void main(String[] args) {
+        new MainClass();
+        System.out.println("java running");
     }
 
     private void initServerSocket(int port) {
@@ -65,8 +65,8 @@ public class MainClass {
     }
 
     class Service implements Runnable {
-        private Socket socket;
         ServerIOManager serverIoManager;
+        private Socket socket;
 
         public Service(Socket socket) {
             this.socket = socket;

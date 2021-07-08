@@ -10,12 +10,14 @@ import com.easysocket.config.EasySocketOptions;
 public interface IOptions<T> {
     /**
      * 设置配置信息
+     *
      * @param socketOptions
      */
     T setOptions(EasySocketOptions socketOptions);
 
     /**
      * 获取配置信息
+     *
      * @return
      */
     EasySocketOptions getOptions();

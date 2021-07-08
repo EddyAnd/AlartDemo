@@ -33,25 +33,6 @@ public class ServerWriter implements IWriter {
     private boolean isShutdown;
 
     private Socket socket;
-
-    public ServerWriter(OutputStream outputStream, Socket socket) {
-        this.outputStream = outputStream;
-        this.socket = socket;
-    }
-
-    @Override
-    public void openWriter() {
-        writerThread = new Thread(writerTask, "writer thread");
-        isShutdown = false;
-        writerThread.start();
-    }
-
-    @Override
-    public void setOption(Object o) {
-
-    }
-
-
     /**
      * io写任务
      */
@@ -71,6 +52,23 @@ public class ServerWriter implements IWriter {
             }
         }
     };
+
+    public ServerWriter(OutputStream outputStream, Socket socket) {
+        this.outputStream = outputStream;
+        this.socket = socket;
+    }
+
+    @Override
+    public void openWriter() {
+        writerThread = new Thread(writerTask, "writer thread");
+        isShutdown = false;
+        writerThread.start();
+    }
+
+    @Override
+    public void setOption(Object o) {
+
+    }
 
     @Override
     public void write(byte[] sendBytes) {

@@ -20,16 +20,12 @@ public class ConnectionHolder {
     private volatile Map<String, IConnectionManager> mConnectionManagerMap = new HashMap<>();
 
 
-    private static class InstanceHolder {
-        private static final ConnectionHolder INSTANCE = new ConnectionHolder();
+    private ConnectionHolder() {
+        mConnectionManagerMap.clear();
     }
 
     public static ConnectionHolder getInstance() {
         return InstanceHolder.INSTANCE;
-    }
-
-    private ConnectionHolder() {
-        mConnectionManagerMap.clear();
     }
 
     /**
@@ -72,7 +68,7 @@ public class ConnectionHolder {
      * @return
      */
     public IConnectionManager getConnection(SocketAddress address, EasySocketOptions socketOptions) {
-        return getConnection(createKey(address),socketOptions);
+        return getConnection(createKey(address), socketOptions);
     }
 
     public IConnectionManager getConnection(String address, EasySocketOptions socketOptions) {
@@ -131,6 +127,10 @@ public class ConnectionHolder {
     private SocketAddress createSocketAddress(String address) {
         String[] s = address.split(":");
         return new SocketAddress(s[0], Integer.parseInt(s[1]));
+    }
+
+    private static class InstanceHolder {
+        private static final ConnectionHolder INSTANCE = new ConnectionHolder();
     }
 
 }

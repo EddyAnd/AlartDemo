@@ -11,12 +11,14 @@ import com.easysocket.entity.SocketAddress;
 public interface ISocketActionListener {
     /**
      * socket连接成功
+     *
      * @param socketAddress
      */
     void onSocketConnSuccess(SocketAddress socketAddress);
 
     /**
      * socket连接失败
+     *
      * @param socketAddress
      * @param isNeedReconnect 是否需要重连
      */
@@ -24,6 +26,7 @@ public interface ISocketActionListener {
 
     /**
      * 断开socket连接
+     *
      * @param socketAddress
      * @param isNeedReconnect 是否需要重连
      */
@@ -31,6 +34,7 @@ public interface ISocketActionListener {
 
     /**
      * socket数据响应
+     *
      * @param socketAddress
      * @param originReadData
      */
@@ -38,6 +42,7 @@ public interface ISocketActionListener {
 
     /**
      * socket数据响应
+     *
      * @param socketAddress
      * @param readData
      */
@@ -45,6 +50,7 @@ public interface ISocketActionListener {
 
     /**
      * socket数据响应
+     *
      * @param socketAddress
      * @param readData
      */

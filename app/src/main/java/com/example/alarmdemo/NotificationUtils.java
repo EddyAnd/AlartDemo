@@ -3,13 +3,13 @@ package com.example.alarmdemo;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 
 public class NotificationUtils {
-public static String CHANNEL_R_PUSH_ID = "TEST";
-public static String CHANNEL_R_PUSH_DESC = "TEST_ALARM";
-    public static String    CHANNEL_R_PUSH_NAME = "王哲凡";
+    public static String CHANNEL_R_PUSH_ID = "TEST";
+    public static String CHANNEL_R_PUSH_DESC = "TEST_ALARM";
+    public static String CHANNEL_R_PUSH_NAME = "王哲凡";
+
     public static NotificationChannel getPushNotificationChannel() {
         // Android8.0及以上NotificationChannel机制
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

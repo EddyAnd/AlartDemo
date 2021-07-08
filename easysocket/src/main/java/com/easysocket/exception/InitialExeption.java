@@ -5,8 +5,8 @@ package com.easysocket.exception;
  * Date：2019/6/5
  * Note：初始化异常
  */
-public class InitialExeption extends RuntimeException{
-    public InitialExeption(String s){
+public class InitialExeption extends RuntimeException {
+    public InitialExeption(String s) {
         super(s);
     }
 }

@@ -9,6 +9,7 @@ public interface IReconnListener {
 
     /**
      * 关联连接器
+     *
      * @param iConnectionManager
      */
     void attach(IConnectionManager iConnectionManager);

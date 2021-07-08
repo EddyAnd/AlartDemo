@@ -1,4 +1,3 @@
-
 package com.easysocket.callback;
 
 import android.app.Dialog;

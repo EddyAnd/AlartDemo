@@ -9,16 +9,16 @@ import com.socker_server.entity.IMessageProtocol;
  */
 public class ServerConfig {
 
-    // 消息协议
-    private IMessageProtocol messageProtocol;
     // 单例
     private static ServerConfig instance = new ServerConfig();
+    // 消息协议
+    private IMessageProtocol messageProtocol;
+
+    private ServerConfig() {
+    }
 
     public static ServerConfig getInstance() {
         return instance;
-    }
-
-    private ServerConfig() {
     }
 
     public IMessageProtocol getMessageProtocol() {

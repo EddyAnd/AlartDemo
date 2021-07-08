@@ -38,6 +38,17 @@ public class ServerReader implements IReader {
      * 处理接收到数据
      */
     private HandlerIO handlerIO;
+    /**
+     * 读取数据任务类
+     */
+    private Runnable readerTask = new Runnable() {
+        @Override
+        public void run() {
+            while (socket.isConnected() && !isShutdown && !socket.isClosed()) {
+                read();
+            }
+        }
+    };
 
     public ServerReader(InputStream inputStream, Socket socket, HandlerIO handlerIO) {
         this.inputStream = inputStream;
@@ -163,18 +174,6 @@ public class ServerReader implements IReader {
         readerThread = new Thread(readerTask, "reader thread");
         readerThread.start();
     }
-
-    /**
-     * 读取数据任务类
-     */
-    private Runnable readerTask = new Runnable() {
-        @Override
-        public void run() {
-            while (socket.isConnected() && !isShutdown && !socket.isClosed()) {
-                read();
-            }
-        }
-    };
 
     // 直接读取原始数据，适合于所有数据格式
     private void readOriginDataFromSteam(OriginReadData readData) throws Exception {

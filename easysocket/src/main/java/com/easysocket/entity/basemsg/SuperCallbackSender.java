@@ -30,7 +30,7 @@ public abstract class SuperCallbackSender extends SuperSender {
      * 当前消息的时候也是携带同样的CallbackId给客户端，用以识别
      */
     public void generateCallbackId() {
-        callbackId= Utils.getRandomChar(20);
+        callbackId = Utils.getRandomChar(20);
     }
 }
 

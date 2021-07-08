@@ -20,6 +20,11 @@ public class SocketAddress {
      */
     private SocketAddress backupAddress;
 
+    public SocketAddress(String ip, int port) {
+        this.ip = ip;
+        this.port = port;
+    }
+
     /**
      * 获取备用的Ip和端口号
      *
@@ -36,11 +41,6 @@ public class SocketAddress {
      */
     public void setBackupAddress(SocketAddress backupAddress) {
         this.backupAddress = backupAddress;
-    }
-
-    public SocketAddress(String ip, int port){
-        this.ip =ip;
-        this.port =port;
     }
 
     public String getIp() {

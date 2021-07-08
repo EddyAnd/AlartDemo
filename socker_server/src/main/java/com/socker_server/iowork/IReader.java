@@ -24,6 +24,7 @@ public interface IReader<T> {
 
     /**
      * 设置参数
+     *
      * @param t
      */
     void setOption(T t);

@@ -42,28 +42,6 @@ public class HeartManager extends SocketActionListener implements IOptions, IHea
      */
     private AtomicInteger loseTimes = new AtomicInteger(-1);
     /**
-     * 心跳频率
-     */
-    private long freq;
-    /**
-     * 是否激活了心跳
-     */
-    private boolean isActivate;
-
-
-    /**
-     * 心跳包接收监听
-     */
-    private HeartbeatListener heartbeatListener;
-
-
-    public HeartManager(IConnectionManager iConnectionManager, ISocketActionDispatch actionDispatch) {
-        this.connectionManager = iConnectionManager;
-        socketOptions = iConnectionManager.getOptions();
-        actionDispatch.subscribe(this); // 注册监听
-    }
-
-    /**
      * 心跳发送任务
      */
     private final Runnable beatTask = new Runnable() {
@@ -80,7 +58,24 @@ public class HeartManager extends SocketActionListener implements IOptions, IHea
             }
         }
     };
+    /**
+     * 心跳频率
+     */
+    private long freq;
+    /**
+     * 是否激活了心跳
+     */
+    private boolean isActivate;
+    /**
+     * 心跳包接收监听
+     */
+    private HeartbeatListener heartbeatListener;
 
+    public HeartManager(IConnectionManager iConnectionManager, ISocketActionDispatch actionDispatch) {
+        this.connectionManager = iConnectionManager;
+        socketOptions = iConnectionManager.getOptions();
+        actionDispatch.subscribe(this); // 注册监听
+    }
 
     @Override
     public void startHeartbeat(byte[] clientHeart, HeartbeatListener listener) {

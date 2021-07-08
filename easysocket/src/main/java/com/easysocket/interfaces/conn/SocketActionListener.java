@@ -8,17 +8,20 @@ import com.easysocket.entity.SocketAddress;
  * Date：2019/6/4
  * Note：socket行为监听的抽象类，继承此类可以选择性地重写方法
  */
-public abstract class SocketActionListener implements ISocketActionListener{
+public abstract class SocketActionListener implements ISocketActionListener {
     /**
      * socket连接成功
+     *
      * @param socketAddress
      */
     @Override
     public void onSocketConnSuccess(SocketAddress socketAddress) {
 
     }
+
     /**
      * socket连接失败
+     *
      * @param socketAddress
      * @param isNeedReconnect 是否需要重连
      */
@@ -26,8 +29,10 @@ public abstract class SocketActionListener implements ISocketActionListener{
     public void onSocketConnFail(SocketAddress socketAddress, boolean isNeedReconnect) {
 
     }
+
     /**
      * 断开socket连接
+     *
      * @param socketAddress
      * @param isNeedReconnect 是否需要重连
      */
@@ -35,8 +40,10 @@ public abstract class SocketActionListener implements ISocketActionListener{
     public void onSocketDisconnect(SocketAddress socketAddress, boolean isNeedReconnect) {
 
     }
+
     /**
      * socket读数据反馈
+     *
      * @param socketAddress
      * @param originReadData
      */

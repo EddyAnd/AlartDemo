@@ -37,9 +37,10 @@ public class OriginReadData implements Serializable {
 
     /**
      * 获取原始数据body的string形式
+     *
      * @return
      */
-    public String getBodyString(){
+    public String getBodyString() {
         return new String(getBodyData(), Charset.forName("utf-8"));
     }
 }

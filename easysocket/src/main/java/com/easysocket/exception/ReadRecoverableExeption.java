@@ -7,7 +7,7 @@ package com.easysocket.exception;
  */
 public class ReadRecoverableExeption extends Exception {
 
-    public ReadRecoverableExeption(String s){
+    public ReadRecoverableExeption(String s) {
         super(s);
     }
 }

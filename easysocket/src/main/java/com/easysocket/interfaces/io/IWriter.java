@@ -15,6 +15,7 @@ public interface IWriter<T> {
 
     /**
      * 写数据
+     *
      * @param sender
      */
     void write(byte[] sender) throws IOException;
@@ -31,6 +32,7 @@ public interface IWriter<T> {
 
     /**
      * 设置参数
+     *
      * @param t
      */
     void setOption(T t);

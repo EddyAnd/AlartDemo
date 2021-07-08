@@ -12,7 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.text.HtmlCompat;
 
 import com.easysocket.EasySocket;
 import com.easysocket.callback.ProgressDialogCallBack;
@@ -61,7 +60,83 @@ public class SocketActivity extends AppCompatActivity implements View.OnClickLis
      * 9998端口的地址
      **/
     private String ADDRESS_9998;
+    /**
+     * socket行为监听
+     */
+    private ISocketActionListener socketActionListener = new SocketActionListener() {
+        /**
+         * socket连接成功
+         * @param socketAddress
+         */
+        @Override
+        public void onSocketConnSuccess(SocketAddress socketAddress) {
+            LogUtil.d("端口" + socketAddress.getPort() + "---> 连接成功");
+            if (socketAddress.getPort() == 9998) {
+                controlConnect9998.setText(socketAddress.getPort() + "端口" + "socket已连接，点击断开连接");
+                isConnected9998 = true;
+            } else {
+                controlConnect.setText(socketAddress.getPort() + "端口" + "socket已连接，点击断开连接");
+                isConnected = true;
+            }
+        }
 
+        /**
+         * socket连接失败
+         * @param socketAddress
+         * @param isNeedReconnect 是否需要重连
+         */
+        @Override
+        public void onSocketConnFail(SocketAddress socketAddress, boolean isNeedReconnect) {
+            controlConnect.setText(socketAddress.getPort() + "端口" + "socket连接被断开，点击进行连接");
+            if (socketAddress.getPort() == 9998) {
+                isConnected9998 = false;
+            } else {
+                isConnected = false;
+            }
+
+        }
+
+        /**
+         * socket断开连接
+         * @param socketAddress
+         * @param isNeedReconnect 是否需要重连
+         */
+        @Override
+        public void onSocketDisconnect(SocketAddress socketAddress, boolean isNeedReconnect) {
+            LogUtil.d(socketAddress.getPort() + "端口" + "---> socket断开连接，是否需要重连：" + isNeedReconnect);
+            if (socketAddress.getPort() == 9998) {
+                isConnected9998 = false;
+                controlConnect9998.setText(socketAddress.getPort() + "端口" + "socket连接被断开，点击进行连接");
+            } else {
+                isConnected = false;
+                controlConnect.setText(socketAddress.getPort() + "端口" + "socket连接被断开，点击进行连接");
+            }
+
+        }
+
+        /**
+         * socket接收的数据
+         * @param socketAddress
+         * @param readData
+         */
+        @Override
+        public void onSocketResponse(SocketAddress socketAddress, String readData) {
+            LogUtil.d(socketAddress.getPort() + "端口" + "SocketActionListener收到数据-->" + readData);
+            if (!TextUtils.isEmpty(readData) && readData.contains("data")) {
+                JsonBean json = new Gson().fromJson(readData, JsonBean.class);
+                if (json.ret == 0) {
+                    Log.e("=====内容为====", json.data.content);
+                    showText.setText(Html.fromHtml(json.data.content));
+                }
+            }
+        }
+
+        @Override
+        public void onSocketResponse(SocketAddress socketAddress, OriginReadData originReadData) {
+            super.onSocketResponse(socketAddress, originReadData);
+            LogUtil.d(socketAddress.getPort() + "端口" + "SocketActionListener收到数据-->" + originReadData.getBodyString());
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +158,6 @@ public class SocketActivity extends AppCompatActivity implements View.OnClickLis
             view.setOnClickListener(this);
         }
     }
-
 
     @Override
     public void onClick(View v) {
@@ -209,7 +283,6 @@ public class SocketActivity extends AppCompatActivity implements View.OnClickLis
                 });
     }
 
-
     /**
      * 发送一个有回调的消息
      */
@@ -310,86 +383,6 @@ public class SocketActivity extends AppCompatActivity implements View.OnClickLis
         EasySocket.getInstance().upMessage(testMessage.pack(), address);
     }
 
-
-    /**
-     * socket行为监听
-     */
-    private ISocketActionListener socketActionListener = new SocketActionListener() {
-        /**
-         * socket连接成功
-         * @param socketAddress
-         */
-        @Override
-        public void onSocketConnSuccess(SocketAddress socketAddress) {
-            LogUtil.d("端口" + socketAddress.getPort() + "---> 连接成功");
-            if (socketAddress.getPort() == 9998) {
-                controlConnect9998.setText(socketAddress.getPort() + "端口" + "socket已连接，点击断开连接");
-                isConnected9998 = true;
-            } else {
-                controlConnect.setText(socketAddress.getPort() + "端口" + "socket已连接，点击断开连接");
-                isConnected = true;
-            }
-        }
-
-        /**
-         * socket连接失败
-         * @param socketAddress
-         * @param isNeedReconnect 是否需要重连
-         */
-        @Override
-        public void onSocketConnFail(SocketAddress socketAddress, boolean isNeedReconnect) {
-            controlConnect.setText(socketAddress.getPort() + "端口" + "socket连接被断开，点击进行连接");
-            if (socketAddress.getPort() == 9998) {
-                isConnected9998 = false;
-            } else {
-                isConnected = false;
-            }
-
-        }
-
-        /**
-         * socket断开连接
-         * @param socketAddress
-         * @param isNeedReconnect 是否需要重连
-         */
-        @Override
-        public void onSocketDisconnect(SocketAddress socketAddress, boolean isNeedReconnect) {
-            LogUtil.d(socketAddress.getPort() + "端口" + "---> socket断开连接，是否需要重连：" + isNeedReconnect);
-            if (socketAddress.getPort() == 9998) {
-                isConnected9998 = false;
-                controlConnect9998.setText(socketAddress.getPort() + "端口" + "socket连接被断开，点击进行连接");
-            } else {
-                isConnected = false;
-                controlConnect.setText(socketAddress.getPort() + "端口" + "socket连接被断开，点击进行连接");
-            }
-
-        }
-
-        /**
-         * socket接收的数据
-         * @param socketAddress
-         * @param readData
-         */
-        @Override
-        public void onSocketResponse(SocketAddress socketAddress, String readData) {
-            LogUtil.d(socketAddress.getPort() + "端口" + "SocketActionListener收到数据-->" + readData);
-            if(!TextUtils.isEmpty(readData) && readData.contains("data")){
-                 JsonBean json = new Gson().fromJson(readData,JsonBean.class);
-                 if(json.ret == 0){
-                     Log.e("=====内容为====",json.data.content);
-                     showText.setText(Html.fromHtml(json.data.content));
-                 }
-            }
-        }
-
-        @Override
-        public void onSocketResponse(SocketAddress socketAddress, OriginReadData originReadData) {
-            super.onSocketResponse(socketAddress, originReadData);
-            LogUtil.d(socketAddress.getPort() + "端口" + "SocketActionListener收到数据-->" + originReadData.getBodyString());
-        }
-    };
-
-
     /**
      * 初始化EasySocket
      */
@@ -398,10 +391,10 @@ public class SocketActivity extends AppCompatActivity implements View.OnClickLis
         EasySocketOptions options = new EasySocketOptions.Builder()
                 // 主机地址，请填写自己的IP地址，以getString的方式是为了隐藏作者自己的IP地址
                 .setSocketAddress(new SocketAddress(getResources().getString(R.string.local_ip), 9090))
-                 .setCallbackIDFactory(new CallbackIDFactoryImpl())
+                .setCallbackIDFactory(new CallbackIDFactoryImpl())
                 // 定义消息协议，方便解决 socket黏包、分包的问题，如果客户端定义了消息协议，那么
                 // 服务端也要对应对应的消息协议，如果这里没有定义消息协议，服务端也不需要定义
-               // .setReaderProtocol(new DefaultMessageProtocol())
+                // .setReaderProtocol(new DefaultMessageProtocol())
                 .build();
 
         // 创建一个socket连接
@@ -415,7 +408,7 @@ public class SocketActivity extends AppCompatActivity implements View.OnClickLis
     private void initEasySocket9998() {
         // socket配置
         EasySocketOptions options = new EasySocketOptions.Builder()
-               // .setCallbackIDFactory(new CallbackIDFactoryImpl())
+                // .setCallbackIDFactory(new CallbackIDFactoryImpl())
                 // 主机地址，请填写自己的IP地址，以getString的方式是为了隐藏作者自己的IP地址
                 .setSocketAddress(new SocketAddress(getResources().getString(R.string.local_ip), 9090))
                 // 定义消息协议，方便解决 socket黏包、分包的问题，如果客户端定义了消息协议，那么

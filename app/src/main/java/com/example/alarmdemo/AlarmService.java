@@ -14,9 +14,10 @@ import androidx.annotation.Nullable;
 
 
 public class AlarmService extends Service {
-    private int mAcquisitionInterval = 10;// 5秒采集一次
     private static String CHANNEL_ID = "gps";
     private static String CHANNEL_NAME = "update_gps";
+    private int mAcquisitionInterval = 10;// 5秒采集一次
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -24,12 +25,12 @@ public class AlarmService extends Service {
     }
 
 
-    private void startForeground(){
+    private void startForeground() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel =new NotificationChannel(CHANNEL_ID, CHANNEL_NAME,  NotificationManager.IMPORTANCE_MIN);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_MIN);
             NotificationManager manager = (NotificationManager) getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
             manager.createNotificationChannel(channel);
-            Notification notification = new Notification.Builder(getApplicationContext(),CHANNEL_ID).build();
+            Notification notification = new Notification.Builder(getApplicationContext(), CHANNEL_ID).build();
             startForeground(1, notification);
         }
     }
@@ -53,13 +54,11 @@ public class AlarmService extends Service {
         PendingIntent pi = PendingIntent.getBroadcast(this, 0, intent2, 0);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             manager.setExact(android.app.AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
-        }else {
-            manager.set(android.app.AlarmManager.RTC_WAKEUP,triggerAtTime,pi);
+        } else {
+            manager.set(android.app.AlarmManager.RTC_WAKEUP, triggerAtTime, pi);
         }
         return super.onStartCommand(intent, flags, startId);
     }
-
-
 
 
     @Override

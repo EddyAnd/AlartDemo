@@ -13,7 +13,6 @@ import com.easysocket.utils.LogUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
 
 /**
@@ -55,6 +54,34 @@ public class EasyReader implements IReader<EasySocketOptions> {
      * 是否停止线程
      */
     private boolean stopThread;
+    /**
+     * 读数据任务
+     */
+    private Runnable readerTask = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                while (!stopThread) {
+                    read();
+                }
+            } catch (ReadUnrecoverableException unrecoverableException) {
+                // 读异常
+                unrecoverableException.printStackTrace();
+                // 停止线程
+                stopThread = true;
+                release();
+            } catch (ReadRecoverableExeption readRecoverableExeption) {
+                readRecoverableExeption.printStackTrace();
+                // 重连
+                connectionManager.disconnect(true);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                // 重连
+                connectionManager.disconnect(true);
+            }
+        }
+    };
 
     public EasyReader(IConnectionManager connectionManager, ISocketActionDispatch actionDispatch) {
         this.actionDispatch = actionDispatch;
@@ -176,37 +203,6 @@ public class EasyReader implements IReader<EasySocketOptions> {
 //        actionDispatch.dispatchAction(IOAction.ACTION_READ_COMPLETE, originalData);
 
     }
-
-
-    /**
-     * 读数据任务
-     */
-    private Runnable readerTask = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                while (!stopThread) {
-                    read();
-                }
-            } catch (ReadUnrecoverableException unrecoverableException) {
-                // 读异常
-                unrecoverableException.printStackTrace();
-                // 停止线程
-                stopThread = true;
-                release();
-            } catch (ReadRecoverableExeption readRecoverableExeption) {
-                readRecoverableExeption.printStackTrace();
-                // 重连
-                connectionManager.disconnect(true);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                // 重连
-                connectionManager.disconnect(true);
-            }
-        }
-    };
-
 
     private void readHeaderFromSteam(ByteBuffer headBuf, int readLength) throws ReadRecoverableExeption, IOException {
         for (int i = 0; i < readLength; i++) {

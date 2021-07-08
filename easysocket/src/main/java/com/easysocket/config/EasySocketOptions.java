@@ -61,7 +61,7 @@ public class EasySocketOptions {
     /**
      * 服务器返回数据的最大值（单位Mb），防止客户端内存溢出
      */
-   // private int maxResponseDataMb;
+    // private int maxResponseDataMb;
     /**
      * socket重连管理器
      */
@@ -93,10 +93,173 @@ public class EasySocketOptions {
      */
     private String charsetName;
 
+    /**
+     * 获取默认的配置
+     *
+     * @return
+     */
+    public static EasySocketOptions getDefaultOptions() {
+        EasySocketOptions options = new EasySocketOptions();
+        options.socketAddress = null;
+        options.backupAddress = null;
+        options.heartbeatFreq = 5 * 1000;
+        options.messageProtocol = null;
+        //  options.maxResponseDataMb = 5;
+        options.connectTimeout = 5 * 1000; // 连接超时默认5秒
+        options.maxWriteBytes = 100;
+        options.maxReadBytes = 50;
+        options.readOrder = ByteOrder.BIG_ENDIAN;
+        options.writeOrder = ByteOrder.BIG_ENDIAN;
+        options.maxHeartbeatLoseTimes = 5;
+        options.reconnectionManager = new DefaultReConnection();
+        options.easySSLConfig = null;
+        options.socketFactory = null;
+        options.callbackIDFactory = null;
+        options.requestTimeout = 10 * 1000; // 默认十秒
+        options.isOpenRequestTimeout = true; // 默认开启
+        options.charsetName = "UTF-8";
+        return options;
+    }
+
+    public static void setIsDebug(boolean isDebug) {
+        EasySocketOptions.isDebug = isDebug;
+    }
+
     public boolean isDebug() {
         return isDebug;
     }
 
+    public String getCharsetName() {
+        return charsetName;
+    }
+
+    public ByteOrder getWriteOrder() {
+        return writeOrder;
+    }
+
+    public void setWriteOrder(ByteOrder writeOrder) {
+        this.writeOrder = writeOrder;
+    }
+
+    public ByteOrder getReadOrder() {
+        return readOrder;
+    }
+
+    public void setReadOrder(ByteOrder readOrder) {
+        this.readOrder = readOrder;
+    }
+
+    public IMessageProtocol getMessageProtocol() {
+        return messageProtocol;
+    }
+
+    public void setMessageProtocol(IMessageProtocol messageProtocol) {
+        this.messageProtocol = messageProtocol;
+    }
+
+    public int getMaxWriteBytes() {
+        return maxWriteBytes;
+    }
+
+    public void setMaxWriteBytes(int maxWriteBytes) {
+        this.maxWriteBytes = maxWriteBytes;
+    }
+
+//    public int getMaxResponseDataMb() {
+//        return maxResponseDataMb;
+//    }
+
+    public int getMaxReadBytes() {
+        return maxReadBytes;
+    }
+
+    public void setMaxReadBytes(int maxReadBytes) {
+        this.maxReadBytes = maxReadBytes;
+    }
+
+    public long getHeartbeatFreq() {
+        return heartbeatFreq;
+    }
+
+    public void setHeartbeatFreq(long heartbeatFreq) {
+        this.heartbeatFreq = heartbeatFreq;
+    }
+
+    public int getMaxHeartbeatLoseTimes() {
+        return maxHeartbeatLoseTimes;
+    }
+
+    public void setMaxHeartbeatLoseTimes(int maxHeartbeatLoseTimes) {
+        this.maxHeartbeatLoseTimes = maxHeartbeatLoseTimes;
+    }
+
+    public int getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    public void setConnectTimeout(int connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
+    public AbsReconnection getReconnectionManager() {
+        return reconnectionManager;
+    }
+
+    public void setReconnectionManager(AbsReconnection reconnectionManager) {
+        this.reconnectionManager = reconnectionManager;
+    }
+
+    public SocketSSLConfig getEasySSLConfig() {
+        return easySSLConfig;
+    }
+
+    public void setEasySSLConfig(SocketSSLConfig easySSLConfig) {
+        this.easySSLConfig = easySSLConfig;
+    }
+
+    public SocketFactory getSocketFactory() {
+        return socketFactory;
+    }
+
+    public void setSocketFactory(SocketFactory socketFactory) {
+        this.socketFactory = socketFactory;
+    }
+
+    public long getRequestTimeout() {
+        return requestTimeout;
+    }
+
+//    public void setMaxResponseDataMb(int maxResponseDataMb) {
+//        this.maxResponseDataMb = maxResponseDataMb;
+//    }
+
+    public void setRequestTimeout(long requestTimeout) {
+        this.requestTimeout = requestTimeout;
+    }
+
+    public boolean isOpenRequestTimeout() {
+        return isOpenRequestTimeout;
+    }
+
+    public void setOpenRequestTimeout(boolean openRequestTimeout) {
+        isOpenRequestTimeout = openRequestTimeout;
+    }
+
+    public CallbackIDFactory getCallbackIDFactory() {
+        return callbackIDFactory;
+    }
+
+    public void setCallbackIDFactory(CallbackIDFactory callbackIDFactory) {
+        this.callbackIDFactory = callbackIDFactory;
+    }
+
+    public SocketAddress getSocketAddress() {
+        return socketAddress;
+    }
+
+    public SocketAddress getBackupAddress() {
+        return backupAddress;
+    }
 
     /**
      * 静态内部类
@@ -308,171 +471,6 @@ public class EasySocketOptions {
         public EasySocketOptions build() {
             return socketOptions;
         }
-    }
-
-
-    /**
-     * 获取默认的配置
-     *
-     * @return
-     */
-    public static EasySocketOptions getDefaultOptions() {
-        EasySocketOptions options = new EasySocketOptions();
-        options.socketAddress = null;
-        options.backupAddress = null;
-        options.heartbeatFreq = 5 * 1000;
-        options.messageProtocol = null;
-      //  options.maxResponseDataMb = 5;
-        options.connectTimeout = 5 * 1000; // 连接超时默认5秒
-        options.maxWriteBytes = 100;
-        options.maxReadBytes = 50;
-        options.readOrder = ByteOrder.BIG_ENDIAN;
-        options.writeOrder = ByteOrder.BIG_ENDIAN;
-        options.maxHeartbeatLoseTimes = 5;
-        options.reconnectionManager = new DefaultReConnection();
-        options.easySSLConfig = null;
-        options.socketFactory = null;
-        options.callbackIDFactory = null;
-        options.requestTimeout = 10 * 1000; // 默认十秒
-        options.isOpenRequestTimeout = true; // 默认开启
-        options.charsetName = "UTF-8";
-        return options;
-    }
-
-    public String getCharsetName() {
-        return charsetName;
-    }
-
-    public ByteOrder getWriteOrder() {
-        return writeOrder;
-    }
-
-    public ByteOrder getReadOrder() {
-        return readOrder;
-    }
-
-    public IMessageProtocol getMessageProtocol() {
-        return messageProtocol;
-    }
-
-    public int getMaxWriteBytes() {
-        return maxWriteBytes;
-    }
-
-    public int getMaxReadBytes() {
-        return maxReadBytes;
-    }
-
-    public long getHeartbeatFreq() {
-        return heartbeatFreq;
-    }
-
-    public int getMaxHeartbeatLoseTimes() {
-        return maxHeartbeatLoseTimes;
-    }
-
-    public int getConnectTimeout() {
-        return connectTimeout;
-    }
-
-//    public int getMaxResponseDataMb() {
-//        return maxResponseDataMb;
-//    }
-
-    public AbsReconnection getReconnectionManager() {
-        return reconnectionManager;
-    }
-
-    public SocketSSLConfig getEasySSLConfig() {
-        return easySSLConfig;
-    }
-
-    public SocketFactory getSocketFactory() {
-        return socketFactory;
-    }
-
-    public long getRequestTimeout() {
-        return requestTimeout;
-    }
-
-    public boolean isOpenRequestTimeout() {
-        return isOpenRequestTimeout;
-    }
-
-    public CallbackIDFactory getCallbackIDFactory() {
-        return callbackIDFactory;
-    }
-
-    public static void setIsDebug(boolean isDebug) {
-        EasySocketOptions.isDebug = isDebug;
-    }
-
-    public void setWriteOrder(ByteOrder writeOrder) {
-        this.writeOrder = writeOrder;
-    }
-
-    public void setReadOrder(ByteOrder readOrder) {
-        this.readOrder = readOrder;
-    }
-
-    public void setMessageProtocol(IMessageProtocol messageProtocol) {
-        this.messageProtocol = messageProtocol;
-    }
-
-    public void setMaxWriteBytes(int maxWriteBytes) {
-        this.maxWriteBytes = maxWriteBytes;
-    }
-
-    public void setMaxReadBytes(int maxReadBytes) {
-        this.maxReadBytes = maxReadBytes;
-    }
-
-    public void setHeartbeatFreq(long heartbeatFreq) {
-        this.heartbeatFreq = heartbeatFreq;
-    }
-
-    public void setMaxHeartbeatLoseTimes(int maxHeartbeatLoseTimes) {
-        this.maxHeartbeatLoseTimes = maxHeartbeatLoseTimes;
-    }
-
-    public void setConnectTimeout(int connectTimeout) {
-        this.connectTimeout = connectTimeout;
-    }
-
-//    public void setMaxResponseDataMb(int maxResponseDataMb) {
-//        this.maxResponseDataMb = maxResponseDataMb;
-//    }
-
-    public void setReconnectionManager(AbsReconnection reconnectionManager) {
-        this.reconnectionManager = reconnectionManager;
-    }
-
-    public void setEasySSLConfig(SocketSSLConfig easySSLConfig) {
-        this.easySSLConfig = easySSLConfig;
-    }
-
-    public void setSocketFactory(SocketFactory socketFactory) {
-        this.socketFactory = socketFactory;
-    }
-
-    public void setCallbackIDFactory(CallbackIDFactory callbackIDFactory) {
-        this.callbackIDFactory = callbackIDFactory;
-    }
-
-    public void setRequestTimeout(long requestTimeout) {
-        this.requestTimeout = requestTimeout;
-    }
-
-    public void setOpenRequestTimeout(boolean openRequestTimeout) {
-        isOpenRequestTimeout = openRequestTimeout;
-    }
-
-    public SocketAddress getSocketAddress() {
-        return socketAddress;
-    }
-
-    public SocketAddress getBackupAddress() {
-        return backupAddress;
     }
 
 }

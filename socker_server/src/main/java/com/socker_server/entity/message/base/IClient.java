@@ -5,5 +5,5 @@ package com.socker_server.entity.message.base;
  * Date：2019/12/8
  * Note：
  */
-public  interface IClient {
+public interface IClient {
 }

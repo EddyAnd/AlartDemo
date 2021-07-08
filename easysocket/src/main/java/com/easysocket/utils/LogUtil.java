@@ -1,4 +1,5 @@
 package com.easysocket.utils;
+
 import android.util.Log;
 
 import com.easysocket.EasySocket;
@@ -36,7 +37,7 @@ public class LogUtil {
 
     public static void e(Throwable tr) {
         if (debugEnabled) {
-            Log.e(LOGTAG, getDebugInfo() ,tr);
+            Log.e(LOGTAG, getDebugInfo(), tr);
         }
     }
 

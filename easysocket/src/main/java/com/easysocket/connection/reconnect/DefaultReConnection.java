@@ -33,18 +33,6 @@ public class DefaultReConnection extends AbsReconnection {
      * 实现延时任务的 handler
      */
     private Handler handler;
-
-    public DefaultReConnection() {
-    }
-
-    @Override
-    public synchronized void attach(IConnectionManager iConnectionManager) {
-        super.attach(iConnectionManager);
-        if (reconnectTimeDelay < connectionManager.getOptions().getConnectTimeout()) {
-            reconnectTimeDelay = connectionManager.getOptions().getConnectTimeout();
-        }
-    }
-
     /**
      * 重连任务
      */
@@ -67,6 +55,17 @@ public class DefaultReConnection extends AbsReconnection {
             connectionManager.connect();
         }
     };
+
+    public DefaultReConnection() {
+    }
+
+    @Override
+    public synchronized void attach(IConnectionManager iConnectionManager) {
+        super.attach(iConnectionManager);
+        if (reconnectTimeDelay < connectionManager.getOptions().getConnectTimeout()) {
+            reconnectTimeDelay = connectionManager.getOptions().getConnectTimeout();
+        }
+    }
 
     /**
      * 进行重连

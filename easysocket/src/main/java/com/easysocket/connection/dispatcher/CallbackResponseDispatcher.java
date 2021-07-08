@@ -26,6 +26,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class CallbackResponseDispatcher {
     /**
+     * 连接管理
+     */
+    IConnectionManager connectionManager;
+    /**
      * 保存发送的每个回调消息的监听实例，key为回调标识callbackId，这样回调消息有反馈的时候，就可以找到并调用
      * 对应的监听对象
      */
@@ -38,14 +42,33 @@ public class CallbackResponseDispatcher {
      * 超时检测的线程管理器
      */
     private ExecutorService timeoutExecutor;
-
-    /**
-     * 连接管理
-     */
-    IConnectionManager connectionManager;
-
     private EasySocketOptions socketOptions;
-
+    /**
+     * socket行为监听，重写反馈消息的回调方法
+     */
+    private SocketActionListener socketActionListener = new SocketActionListener() {
+        @Override
+        public void onSocketResponse(SocketAddress socketAddress, OriginReadData originReadData) {
+            if (callbacks.size() == 0) {
+                return;
+            }
+            if (socketOptions.getCallbackIDFactory() == null) {
+                return;
+            }
+            // 获取回调ID
+            String callbackID = socketOptions.getCallbackIDFactory().getCallbackID(originReadData);
+            if (callbackID != null) {
+                // 获取callbackID对应的callback
+                SuperCallBack callBack = callbacks.get(callbackID);
+                if (callBack != null) {
+                    // 回调
+                    callBack.onSuccess(originReadData);
+                    callbacks.remove(callbackID); // 移除完成任务的callback
+                    LogUtil.d("移除的callbackId-->" + callbackID);
+                }
+            }
+        }
+    };
 
     public CallbackResponseDispatcher(IConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
@@ -79,14 +102,14 @@ public class CallbackResponseDispatcher {
                         timeoutItem item = timeoutQueue.take();
                         if (item != null) {
                             SuperCallBack callBack = callbacks.remove(item.callbackId);
-                            if (callBack != null){
+                            if (callBack != null) {
                                 callBack.onError(new RequestTimeOutException("request timeout"));
                             }
 
                         }
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
-                       // e.printStackTrace();
+                        // e.printStackTrace();
                     }
                     // 继续循环
                     if (timeoutExecutor != null && !timeoutExecutor.isShutdown()) {
@@ -110,30 +133,6 @@ public class CallbackResponseDispatcher {
     }
 
     /**
-     * socket行为监听，重写反馈消息的回调方法
-     */
-    private SocketActionListener socketActionListener = new SocketActionListener() {
-        @Override
-        public void onSocketResponse(SocketAddress socketAddress, OriginReadData originReadData) {
-            if (callbacks.size() == 0) {return;}
-            if (socketOptions.getCallbackIDFactory() == null){ return;}
-            // 获取回调ID
-            String callbackID = socketOptions.getCallbackIDFactory().getCallbackID(originReadData);
-            if (callbackID != null) {
-                // 获取callbackID对应的callback
-                SuperCallBack callBack = callbacks.get(callbackID);
-                if (callBack != null) {
-                    // 回调
-                    callBack.onSuccess(originReadData);
-                    callbacks.remove(callbackID); // 移除完成任务的callback
-                    LogUtil.d("移除的callbackId-->" + callbackID);
-                }
-            }
-        }
-    };
-
-
-    /**
      * 每发一条回调消息都要在这里添加监听对象
      *
      * @param superCallBack
@@ -144,6 +143,23 @@ public class CallbackResponseDispatcher {
         long delayTime = socketOptions == null ?
                 EasySocketOptions.getDefaultOptions().getRequestTimeout() : socketOptions.getRequestTimeout();
         timeoutQueue.add(new timeoutItem(superCallBack.getCallbackId(), delayTime, TimeUnit.MILLISECONDS));
+    }
+
+    /**
+     * 同一个消息发送多次，callbackId是不能一样的，所以这里要先check一下，否则服务端反馈的时候，客户端接收就会乱套
+     *
+     * @param callbackSender
+     * @return
+     */
+    public void checkCallbackSender(SuperCallbackSender callbackSender) {
+
+        Utils.checkNotNull(socketOptions.getCallbackIDFactory(), "要想实现EasySocket的回调功能，CallbackIdFactory不能为null，" +
+                "请实现一个CallbackIdFactory并在初始化的时候通过EasySocketOptions的setCallbackIdFactory进行配置");
+        String callbackId = callbackSender.getCallbackId();
+        // 同一个消息发送两次以上，callbackId是不能一样的，否则服务端反馈的时候，客户端接收就会乱套
+        if (callbacks.containsKey(callbackId)) {
+            callbackSender.generateCallbackId();
+        }
     }
 
     /**
@@ -167,23 +183,6 @@ public class CallbackResponseDispatcher {
         @Override
         public int compareTo(Delayed o) {
             return (int) (this.getDelay(TimeUnit.MILLISECONDS) - o.getDelay(TimeUnit.MILLISECONDS));
-        }
-    }
-
-    /**
-     * 同一个消息发送多次，callbackId是不能一样的，所以这里要先check一下，否则服务端反馈的时候，客户端接收就会乱套
-     *
-     * @param callbackSender
-     * @return
-     */
-    public void checkCallbackSender(SuperCallbackSender callbackSender) {
-
-        Utils.checkNotNull(socketOptions.getCallbackIDFactory(), "要想实现EasySocket的回调功能，CallbackIdFactory不能为null，" +
-                "请实现一个CallbackIdFactory并在初始化的时候通过EasySocketOptions的setCallbackIdFactory进行配置");
-        String callbackId = callbackSender.getCallbackId();
-        // 同一个消息发送两次以上，callbackId是不能一样的，否则服务端反馈的时候，客户端接收就会乱套
-        if (callbacks.containsKey(callbackId)) {
-            callbackSender.generateCallbackId();
         }
     }
 

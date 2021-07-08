@@ -1,12 +1,5 @@
 package com.example.alarmdemo;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.NotificationCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.annotation.SuppressLint;
 import android.app.KeyguardManager;
 import android.app.Notification;
@@ -24,22 +17,27 @@ import android.os.PowerManager;
 import android.provider.AlarmClock;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.logging.Logger;
 
 public class MainActivity extends AppCompatActivity {
+    RecyclerView recyclerView;
+    NormalAdapter normalAdapter;
+    int num = 0;
     private Notification notification;
     private NotificationCompat.Builder builder;
     private NotificationManager manager;
-    RecyclerView recyclerView;
-    NormalAdapter normalAdapter;
+
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -56,16 +54,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initView();
     }
-    private void initView(){
+
+    private void initView() {
         findViewById(R.id.test).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this,SocketActivity.class));
+                startActivity(new Intent(MainActivity.this, SocketActivity.class));
             }
         });
 
         //初始标题栏
-        Toolbar toolbar= findViewById(R.id.tb_register_back);
+        Toolbar toolbar = findViewById(R.id.tb_register_back);
         setSupportActionBar(toolbar);
         //显示返回按钮
         ActionBar actionBar = getSupportActionBar();
@@ -76,10 +75,10 @@ public class MainActivity extends AppCompatActivity {
         normalAdapter.setClickItem(new NormalAdapter.ClickItem() {
             @Override
             public void clickItem(ItemBean itemBean) {
-                Log.e("====点击的title为",itemBean.title);
+                Log.e("====点击的title为", itemBean.title);
                 Intent intent = new Intent(getApplicationContext(), NotificationDetailsActivity.class);
-                intent.putExtra("url",itemBean.url);
-                intent.putExtra("id",itemBean.id);
+                intent.putExtra("url", itemBean.url);
+                intent.putExtra("id", itemBean.id);
                 startActivity(intent);
             }
         });
@@ -90,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         AlarmManager.getInstance(getApplicationContext()).setListCall(new AlarmManager.ListCall() {
             @Override
             public void listCall(final ArrayList<ItemBean> list) {
-                Log.e("===list",new Gson().toJson(list));
+                Log.e("===list", new Gson().toJson(list));
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -104,19 +103,20 @@ public class MainActivity extends AppCompatActivity {
         AlarmManager.getInstance(getApplicationContext()).startUpdateGpsService();
         AlarmManager.getInstance(getApplicationContext()).setAlarmCall(new AlarmManager.AlarmCall() {
             @Override
-            public void callAlarm( AlarmResponseBean bean,String title, int hour, int minute) {
-               // wakeUpAndUnlock(getApplicationContext());
+            public void callAlarm(AlarmResponseBean bean, String title, int hour, int minute) {
+                // wakeUpAndUnlock(getApplicationContext());
                 Intent intent = new Intent(getApplicationContext(), NotificationDetailsActivity.class);
-                intent.putExtra("content",bean.content);
-                intent.putExtra("id",bean.id);
-                intent.putExtra("url",bean.url);
+                intent.putExtra("content", bean.content);
+                intent.putExtra("id", bean.id);
+                intent.putExtra("url", bean.url);
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), bean.id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                notification(bean.id,title,bean.content,pendingIntent);
+                notification(bean.id, title, bean.content, pendingIntent);
             }
         });
 
 
     }
+
     //设置通知栏消息样式
     private void setNotification(int type) {
         //点击通知栏消息跳转页
@@ -174,8 +174,6 @@ public class MainActivity extends AppCompatActivity {
         wl.release();
     }
 
-
-
     private void createAlarm(String message, int hour, int minutes) {
 //        ArrayList<Integer> testDays = new ArrayList<>();
 //        testDays.add(Calendar.MONDAY);//周一
@@ -206,9 +204,9 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
-    int num = 0;
-    private void notification(int id,String title, String content, PendingIntent intent) {
-        num ++;
+
+    private void notification(int id, String title, String content, PendingIntent intent) {
+        num++;
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = NotificationUtils.getPushNotificationChannel();
@@ -258,8 +256,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
-
-
 
 
 }

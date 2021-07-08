@@ -4,12 +4,7 @@ import java.util.ArrayList;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.FieldMap;
-import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 
@@ -19,6 +14,7 @@ public interface HttpList {
 
     @GET("/reply")
     Call<ResponseBody> replyId(@Query("id") int id);
+
     @GET("/list")
     Call<ArrayList<ItemBean>> getList(@Query("deviceId") String deviceId);
 }

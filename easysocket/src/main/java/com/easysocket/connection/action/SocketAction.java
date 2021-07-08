@@ -7,9 +7,9 @@ package com.easysocket.connection.action;
  */
 public interface SocketAction {
     // 连接成功
-    String ACTION_CONN_SUCCESS="action_conn_success";
+    String ACTION_CONN_SUCCESS = "action_conn_success";
     // 连接失败
-    String ACTION_CONN_FAIL="action_conn_fail";
+    String ACTION_CONN_FAIL = "action_conn_fail";
     // 断开连接
-    String ACTION_DISCONNECTION="action_disconnection";
+    String ACTION_DISCONNECTION = "action_disconnection";
 }

@@ -30,6 +30,22 @@ public class SocketSSLConfig {
 
     }
 
+    public KeyManager[] getKeyManagers() {
+        return mKeyManagers;
+    }
+
+    public String getProtocol() {
+        return mProtocol;
+    }
+
+    public TrustManager[] getTrustManagers() {
+        return mTrustManagers;
+    }
+
+    public SSLSocketFactory getCustomSSLFactory() {
+        return mCustomSSLFactory;
+    }
+
     public static class Builder {
 
         private SocketSSLConfig mConfig;
@@ -61,21 +77,5 @@ public class SocketSSLConfig {
         public SocketSSLConfig build() {
             return mConfig;
         }
-    }
-
-    public KeyManager[] getKeyManagers() {
-        return mKeyManagers;
-    }
-
-    public String getProtocol() {
-        return mProtocol;
-    }
-
-    public TrustManager[] getTrustManagers() {
-        return mTrustManagers;
-    }
-
-    public SSLSocketFactory getCustomSSLFactory() {
-        return mCustomSSLFactory;
     }
 }

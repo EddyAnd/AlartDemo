@@ -13,6 +13,7 @@ public interface IWriter<T> {
 
     /**
      * 写入数据
+     *
      * @param sender
      */
     void write(byte[] sender);
@@ -29,6 +30,7 @@ public interface IWriter<T> {
 
     /**
      * 设置参数
+     *
      * @param t
      */
     void setOption(T t);

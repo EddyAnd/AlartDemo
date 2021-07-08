@@ -8,12 +8,14 @@ package com.easysocket.interfaces.conn;
 public interface ISubscribeSocketAction {
     /**
      * 注册监听socket的行为
+     *
      * @param iSocketActionListener
      */
     void subscribeSocketAction(ISocketActionListener iSocketActionListener);
 
     /**
      * 注销监听socket的行为
+     *
      * @param iSocketActionListener
      */
     void unSubscribeSocketAction(ISocketActionListener iSocketActionListener);

@@ -27,6 +27,10 @@ import static com.easysocket.connection.action.SocketAction.ACTION_DISCONNECTION
  */
 public class SocketActionDispatcher implements ISocketActionDispatch {
     /**
+     * 事件消费队列
+     */
+    private final LinkedBlockingQueue<ActionBean> socketActions = new LinkedBlockingQueue();
+    /**
      * 连接地址
      */
     private SocketAddress socketAddress;
@@ -46,11 +50,6 @@ public class SocketActionDispatcher implements ISocketActionDispatch {
      * 是否停止分发
      */
     private boolean isStop;
-
-    /**
-     * 事件消费队列
-     */
-    private final LinkedBlockingQueue<ActionBean> socketActions = new LinkedBlockingQueue();
     /**
      * 切换到UI线程
      */
@@ -89,55 +88,6 @@ public class SocketActionDispatcher implements ISocketActionDispatch {
     @Override
     public void unsubscribe(ISocketActionListener iSocketActionListener) {
         actionListeners.remove(iSocketActionListener);
-    }
-
-    /**
-     * 分发线程
-     */
-    private class DispatchThread extends Thread {
-
-        public DispatchThread() {
-            super("dispatch thread");
-        }
-
-        @Override
-        public void run() {
-            // 循环处理socket的行为信息
-            while (!isStop) {
-                try {
-                    ActionBean actionBean = socketActions.take();
-                    if (actionBean != null && actionBean.mDispatcher != null) {
-                        SocketActionDispatcher actionDispatcher = actionBean.mDispatcher;
-                        List<ISocketActionListener> copyListeners = new ArrayList<>(actionDispatcher.actionListeners);
-                        Iterator<ISocketActionListener> listeners = copyListeners.iterator();
-                        // 通知所有监听者
-                        while (listeners.hasNext()) {
-                            ISocketActionListener listener = listeners.next();
-                            actionDispatcher.dispatchActionToListener(actionBean.mAction, actionBean.arg, listener);
-                        }
-                    }
-                } catch (InterruptedException e) {
-                  //  e.printStackTrace();
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }
-    }
-
-    /**
-     * socket行为的封装
-     */
-    protected static class ActionBean {
-
-        public ActionBean(String action, Serializable arg, SocketActionDispatcher dispatcher) {
-            mAction = action;
-            this.arg = arg;
-            mDispatcher = dispatcher;
-        }
-
-        String mAction = "";
-        Serializable arg;
-        SocketActionDispatcher mDispatcher;
     }
 
     /**
@@ -216,6 +166,54 @@ public class SocketActionDispatcher implements ISocketActionDispatch {
             isStop = true;
             actionThread.interrupt();
             actionThread = null;
+        }
+    }
+
+    /**
+     * socket行为的封装
+     */
+    protected static class ActionBean {
+
+        String mAction = "";
+        Serializable arg;
+        SocketActionDispatcher mDispatcher;
+        public ActionBean(String action, Serializable arg, SocketActionDispatcher dispatcher) {
+            mAction = action;
+            this.arg = arg;
+            mDispatcher = dispatcher;
+        }
+    }
+
+    /**
+     * 分发线程
+     */
+    private class DispatchThread extends Thread {
+
+        public DispatchThread() {
+            super("dispatch thread");
+        }
+
+        @Override
+        public void run() {
+            // 循环处理socket的行为信息
+            while (!isStop) {
+                try {
+                    ActionBean actionBean = socketActions.take();
+                    if (actionBean != null && actionBean.mDispatcher != null) {
+                        SocketActionDispatcher actionDispatcher = actionBean.mDispatcher;
+                        List<ISocketActionListener> copyListeners = new ArrayList<>(actionDispatcher.actionListeners);
+                        Iterator<ISocketActionListener> listeners = copyListeners.iterator();
+                        // 通知所有监听者
+                        while (listeners.hasNext()) {
+                            ISocketActionListener listener = listeners.next();
+                            actionDispatcher.dispatchActionToListener(actionBean.mAction, actionBean.arg, listener);
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    //  e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
     }
 

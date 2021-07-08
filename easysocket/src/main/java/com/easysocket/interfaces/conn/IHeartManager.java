@@ -11,6 +11,7 @@ public interface IHeartManager {
 
     /**
      * 开始心跳
+     *
      * @param clientHeart
      */
     void startHeartbeat(byte[] clientHeart, HeartManager.HeartbeatListener listener);

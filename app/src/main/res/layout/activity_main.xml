@@ -4,28 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/tb_register_back"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
     <Button
         android:id="@+id/test"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:text="去测试socket"/>
+        android:text="去测试socket" />
 
-<androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/recycle_view"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
-
-
-
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycle_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 
 </LinearLayout>

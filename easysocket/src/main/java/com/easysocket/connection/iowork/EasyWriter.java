@@ -49,6 +49,24 @@ public class EasyWriter implements IWriter<EasySocketOptions> {
      * 待写入数据
      */
     private LinkedBlockingDeque<byte[]> packetsToSend = new LinkedBlockingDeque<>();
+    /**
+     * 写任务
+     */
+    private Runnable writerTask = new Runnable() {
+        @Override
+        public void run() {
+            // 循环写数据
+            while (!isStop) {
+                try {
+                    byte[] sender = packetsToSend.take();
+                    write(sender);
+                } catch (InterruptedException | IOException e) {
+                    Thread.currentThread().interrupt();
+                    //  e.printStackTrace();
+                }
+            }
+        }
+    };
 
     public EasyWriter(IConnectionManager connectionManager, ISocketActionDispatch actionDispatch) {
         this.connectionManager = connectionManager;
@@ -70,25 +88,6 @@ public class EasyWriter implements IWriter<EasySocketOptions> {
     public void setOption(EasySocketOptions socketOptions) {
         this.socketOptions = socketOptions;
     }
-
-    /**
-     * 写任务
-     */
-    private Runnable writerTask = new Runnable() {
-        @Override
-        public void run() {
-            // 循环写数据
-            while (!isStop) {
-                try {
-                    byte[] sender = packetsToSend.take();
-                    write(sender);
-                } catch (InterruptedException | IOException e) {
-                    Thread.currentThread().interrupt();
-                  //  e.printStackTrace();
-                }
-            }
-        }
-    };
 
     @Override
     public void write(byte[] sendBytes) throws IOException {
@@ -119,14 +118,15 @@ public class EasyWriter implements IWriter<EasySocketOptions> {
 
     @Override
     public void offer(byte[] sender) {
-        if (!isStop){
-            packetsToSend.offer(sender);}
+        if (!isStop) {
+            packetsToSend.offer(sender);
+        }
     }
 
     @Override
     public void closeWriter() {
         try {
-            if (outputStream != null){
+            if (outputStream != null) {
                 outputStream.close();
             }
             shutDownThread();

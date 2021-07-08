@@ -10,6 +10,7 @@ import com.easysocket.callback.SuperCallBack;
 public interface ICallBack {
     /**
      * socket请求回调
+     *
      * @param callBack
      */
     void onCallBack(SuperCallBack callBack);
