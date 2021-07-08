@@ -79,11 +79,14 @@ public class CallbackResponseDispatcher {
                         timeoutItem item = timeoutQueue.take();
                         if (item != null) {
                             SuperCallBack callBack = callbacks.remove(item.callbackId);
-                            if (callBack != null)
+                            if (callBack != null){
                                 callBack.onError(new RequestTimeOutException("request timeout"));
+                            }
+
                         }
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        Thread.currentThread().interrupt();
+                       // e.printStackTrace();
                     }
                     // 继续循环
                     if (timeoutExecutor != null && !timeoutExecutor.isShutdown()) {

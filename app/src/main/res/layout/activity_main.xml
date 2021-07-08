@@ -18,6 +18,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:text="去测试socket"/>
+
 <androidx.recyclerview.widget.RecyclerView
     android:id="@+id/recycle_view"
     android:layout_width="match_parent"

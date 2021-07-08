@@ -83,7 +83,8 @@ public class EasyWriter implements IWriter<EasySocketOptions> {
                     byte[] sender = packetsToSend.take();
                     write(sender);
                 } catch (InterruptedException | IOException e) {
-                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                  //  e.printStackTrace();
                 }
             }
         }
@@ -118,15 +119,16 @@ public class EasyWriter implements IWriter<EasySocketOptions> {
 
     @Override
     public void offer(byte[] sender) {
-        if (!isStop)
-            packetsToSend.offer(sender);
+        if (!isStop){
+            packetsToSend.offer(sender);}
     }
 
     @Override
     public void closeWriter() {
         try {
-            if (outputStream != null)
+            if (outputStream != null){
                 outputStream.close();
+            }
             shutDownThread();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

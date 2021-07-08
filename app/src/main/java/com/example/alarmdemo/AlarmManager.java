@@ -146,11 +146,11 @@ public class AlarmManager {
      */
 
     public void  startUpdateGpsService(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mContext.startForegroundService(new Intent(mContext, AlarmService.class));
-        } else {
-            mContext.startService(new Intent(mContext, AlarmService.class));
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            mContext.startForegroundService(new Intent(mContext, AlarmService.class));
+//        } else {
+//            mContext.startService(new Intent(mContext, AlarmService.class));
+//        }
     }
 
     /**

@@ -208,6 +208,7 @@ public class EasySocket {
      * @return
      */
     public IConnectionManager upMessage(byte[] message) {
+
         return getDefconnection().upBytes(message);
     }
 

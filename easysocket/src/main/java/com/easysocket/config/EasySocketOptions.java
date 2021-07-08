@@ -61,7 +61,7 @@ public class EasySocketOptions {
     /**
      * 服务器返回数据的最大值（单位Mb），防止客户端内存溢出
      */
-    private int maxResponseDataMb;
+   // private int maxResponseDataMb;
     /**
      * socket重连管理器
      */
@@ -262,10 +262,10 @@ public class EasySocketOptions {
          * @param maxResponseDataMb
          * @return
          */
-        public Builder setMaxResponseDataMb(int maxResponseDataMb) {
-            socketOptions.maxResponseDataMb = maxResponseDataMb;
-            return this;
-        }
+//        public Builder setMaxResponseDataMb(int maxResponseDataMb) {
+//            socketOptions.maxResponseDataMb = maxResponseDataMb;
+//            return this;
+//        }
 
         /**
          * 设置重连管理器
@@ -322,7 +322,7 @@ public class EasySocketOptions {
         options.backupAddress = null;
         options.heartbeatFreq = 5 * 1000;
         options.messageProtocol = null;
-        options.maxResponseDataMb = 5;
+      //  options.maxResponseDataMb = 5;
         options.connectTimeout = 5 * 1000; // 连接超时默认5秒
         options.maxWriteBytes = 100;
         options.maxReadBytes = 50;
@@ -375,9 +375,9 @@ public class EasySocketOptions {
         return connectTimeout;
     }
 
-    public int getMaxResponseDataMb() {
-        return maxResponseDataMb;
-    }
+//    public int getMaxResponseDataMb() {
+//        return maxResponseDataMb;
+//    }
 
     public AbsReconnection getReconnectionManager() {
         return reconnectionManager;
@@ -439,9 +439,9 @@ public class EasySocketOptions {
         this.connectTimeout = connectTimeout;
     }
 
-    public void setMaxResponseDataMb(int maxResponseDataMb) {
-        this.maxResponseDataMb = maxResponseDataMb;
-    }
+//    public void setMaxResponseDataMb(int maxResponseDataMb) {
+//        this.maxResponseDataMb = maxResponseDataMb;
+//    }
 
     public void setReconnectionManager(AbsReconnection reconnectionManager) {
         this.reconnectionManager = reconnectionManager;

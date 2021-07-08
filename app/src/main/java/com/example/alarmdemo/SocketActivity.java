@@ -3,11 +3,16 @@ package com.example.alarmdemo;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.text.HtmlCompat;
 
 import com.easysocket.EasySocket;
 import com.easysocket.callback.ProgressDialogCallBack;
@@ -25,6 +30,7 @@ import com.example.easysocket.CallbackIDFactoryImpl;
 import com.example.easysocket.message.CallbackSender;
 import com.example.easysocket.message.ClientHeartBeat;
 import com.example.easysocket.message.TestMessage;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +40,7 @@ import org.json.JSONObject;
  */
 public class SocketActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private TextView showText;
     /**
      * 是否已经连接
      **/
@@ -62,6 +69,7 @@ public class SocketActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_socket);
         ADDRESS_9998 = getApplicationContext().getResources().getString(R.string.local_ip) + ":9090";
 
+        showText = findViewById(R.id.showText);
         controlConnect = findViewById(R.id.control_conn);
         controlConnect9998 = findViewById(R.id.control_conn1);
 
@@ -365,6 +373,13 @@ public class SocketActivity extends AppCompatActivity implements View.OnClickLis
         @Override
         public void onSocketResponse(SocketAddress socketAddress, String readData) {
             LogUtil.d(socketAddress.getPort() + "端口" + "SocketActionListener收到数据-->" + readData);
+            if(!TextUtils.isEmpty(readData) && readData.contains("data")){
+                 JsonBean json = new Gson().fromJson(readData,JsonBean.class);
+                 if(json.ret == 0){
+                     Log.e("=====内容为====",json.data.content);
+                     showText.setText(Html.fromHtml(json.data.content));
+                 }
+            }
         }
 
         @Override
@@ -383,10 +398,10 @@ public class SocketActivity extends AppCompatActivity implements View.OnClickLis
         EasySocketOptions options = new EasySocketOptions.Builder()
                 // 主机地址，请填写自己的IP地址，以getString的方式是为了隐藏作者自己的IP地址
                 .setSocketAddress(new SocketAddress(getResources().getString(R.string.local_ip), 9090))
-                .setCallbackIDFactory(new CallbackIDFactoryImpl())
+                 .setCallbackIDFactory(new CallbackIDFactoryImpl())
                 // 定义消息协议，方便解决 socket黏包、分包的问题，如果客户端定义了消息协议，那么
                 // 服务端也要对应对应的消息协议，如果这里没有定义消息协议，服务端也不需要定义
-                .setReaderProtocol(new DefaultMessageProtocol())
+               // .setReaderProtocol(new DefaultMessageProtocol())
                 .build();
 
         // 创建一个socket连接
@@ -400,7 +415,7 @@ public class SocketActivity extends AppCompatActivity implements View.OnClickLis
     private void initEasySocket9998() {
         // socket配置
         EasySocketOptions options = new EasySocketOptions.Builder()
-                .setCallbackIDFactory(new CallbackIDFactoryImpl())
+               // .setCallbackIDFactory(new CallbackIDFactoryImpl())
                 // 主机地址，请填写自己的IP地址，以getString的方式是为了隐藏作者自己的IP地址
                 .setSocketAddress(new SocketAddress(getResources().getString(R.string.local_ip), 9090))
                 // 定义消息协议，方便解决 socket黏包、分包的问题，如果客户端定义了消息协议，那么

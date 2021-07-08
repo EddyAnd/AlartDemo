@@ -117,7 +117,8 @@ public class SocketActionDispatcher implements ISocketActionDispatch {
                         }
                     }
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                  //  e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             }
         }

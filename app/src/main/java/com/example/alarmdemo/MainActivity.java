@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this,SocketActivity.class));
             }
         });
+
         //初始标题栏
         Toolbar toolbar= findViewById(R.id.tb_register_back);
         setSupportActionBar(toolbar);
