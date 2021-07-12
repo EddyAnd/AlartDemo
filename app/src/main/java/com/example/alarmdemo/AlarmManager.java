@@ -100,7 +100,10 @@ public class AlarmManager {
             @Override
             public void onFailure(Call<ArrayList<ItemBean>> call, Throwable t) {
                 Log.e("====", "list: 网络请求失败=" + t.getMessage());
-
+                // TODO: 2021/7/12 测试代码 
+                if (mListCall != null) {
+                    mListCall.listCall(new ArrayList<ItemBean>());
+                }
             }
         });
     }

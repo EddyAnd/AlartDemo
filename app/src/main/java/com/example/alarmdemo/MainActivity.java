@@ -15,8 +15,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.AlarmClock;
+import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +28,16 @@ import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.easysocket.EasySocket;
+import com.easysocket.config.EasySocketOptions;
+import com.easysocket.connection.heartbeat.HeartManager;
+import com.easysocket.entity.OriginReadData;
+import com.easysocket.entity.SocketAddress;
+import com.easysocket.interfaces.conn.ISocketActionListener;
+import com.easysocket.interfaces.conn.SocketActionListener;
+import com.easysocket.utils.LogUtil;
+import com.example.easysocket.CallbackIDFactoryImpl;
+import com.example.easysocket.message.ClientHeartBeat;
 import com.google.gson.Gson;
 import com.scwang.smart.refresh.footer.ClassicsFooter;
 import com.scwang.smart.refresh.header.ClassicsHeader;
@@ -32,8 +45,12 @@ import com.scwang.smart.refresh.layout.api.RefreshLayout;
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
@@ -42,15 +59,89 @@ public class MainActivity extends AppCompatActivity {
     private Notification notification;
     private NotificationCompat.Builder builder;
     private NotificationManager manager;
+    /**
+     * 是否已经连接
+     **/
+    private boolean isConnected;
+
+    /**
+     * socket行为监听
+     */
+    private ISocketActionListener socketActionListener = new SocketActionListener() {
+        /**
+         * socket连接成功
+         * @param socketAddress
+         */
+        @Override
+        public void onSocketConnSuccess(SocketAddress socketAddress) {
+            LogUtil.d("端口" + socketAddress.getPort() + "---> 连接成功");
+            isConnected = true;
+            startHeartbeat();
+        }
+
+        /**
+         * socket连接失败
+         * @param socketAddress
+         * @param isNeedReconnect 是否需要重连
+         */
+        @Override
+        public void onSocketConnFail(SocketAddress socketAddress, boolean isNeedReconnect) {
+            LogUtil.d(socketAddress.getPort() + "端口" + "socket连接被断开，点击进行连接");
+            isConnected = false;
+        }
+
+        /**
+         * socket断开连接
+         * @param socketAddress
+         * @param isNeedReconnect 是否需要重连
+         */
+        @Override
+        public void onSocketDisconnect(SocketAddress socketAddress, boolean isNeedReconnect) {
+            LogUtil.d(socketAddress.getPort() + "端口" + "---> socket断开连接，是否需要重连：" + isNeedReconnect);
+            isConnected = false;
+        }
+
+        /**
+         * socket接收的数据
+         * @param socketAddress
+         * @param readData
+         */
+        @Override
+        public void onSocketResponse(SocketAddress socketAddress, String readData) {
+            LogUtil.d(socketAddress.getPort() + "端口" + "SocketActionListener收到数据-->" + readData);
+            if (!TextUtils.isEmpty(readData) && readData.contains("data")) {
+                JsonBean json = new Gson().fromJson(readData, JsonBean.class);
+                if (json.ret == 0) {
+                    Log.e("=====内容为====", json.data.content);
+                    int id = randomTest();
+                    Intent intent = new Intent(getApplicationContext(), NotificationDetailsActivity.class);
+                    intent.putExtra("content", json.data.content);
+                    intent.putExtra("id", id);
+                    intent.putExtra("url", "www.baidu.com");
+                    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    notification(id, "www.baidu.com", json.data.content, pendingIntent);
+                }
+            }
+        }
+
+        @Override
+        public void onSocketResponse(SocketAddress socketAddress, OriginReadData originReadData) {
+            super.onSocketResponse(socketAddress, originReadData);
+            LogUtil.d(socketAddress.getPort() + "端口" + "SocketActionListener收到数据-->" + originReadData.getBodyString());
+        }
+    };
+
+    private int randomTest() {
+        Random random = new Random();
+        //范围内的随机数
+        int min = 1;
+        int max = 999;
+        return random.nextInt(max - min + 1) + min;
+    }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
-//        if (intent != null && intent.getExtras() != null) {
-//            PushEntity pushEntity = (PushEntity) intent.getExtras().getSerializable("PushMsg");
-//            startActivityForNotification(pushEntity);
-//        }
     }
 
     @Override
@@ -58,6 +149,67 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
+        createConnect();
+    }
+
+    /**
+     * 创建socket连接
+     */
+    private void createConnect() {
+        if (isConnected) {
+            Toast.makeText(MainActivity.this, "Socket已连接", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // 初始化socket
+        initEasySocket();
+        // 监听socket行为
+        EasySocket.getInstance().subscribeSocketAction(socketActionListener);
+    }
+
+    /**
+     * 初始化EasySocket
+     */
+    private void initEasySocket() {
+        // socket配置
+        EasySocketOptions options = new EasySocketOptions.Builder()
+                // 主机地址，请填写自己的IP地址，以getString的方式是为了隐藏作者自己的IP地址
+                .setSocketAddress(new SocketAddress(getResources().getString(R.string.local_ip), 9090))
+                .setCallbackIDFactory(new CallbackIDFactoryImpl())
+                // 定义消息协议，方便解决 socket黏包、分包的问题，如果客户端定义了消息协议，那么
+                // 服务端也要对应对应的消息协议，如果这里没有定义消息协议，服务端也不需要定义
+                // .setReaderProtocol(new DefaultMessageProtocol())
+                .build();
+
+        // 创建一个socket连接
+        EasySocket.getInstance()
+                .createConnection(options, this);
+    }
+
+    /**
+     * 启动心跳检测功能
+     **/
+    private void startHeartbeat() {
+        // 心跳实例
+        ClientHeartBeat clientHeartBeat = new ClientHeartBeat();
+        clientHeartBeat.setMsgId("heart_beat");
+        clientHeartBeat.setFrom("client");
+        EasySocket.getInstance().startHeartBeat(clientHeartBeat.pack(), new HeartManager.HeartbeatListener() {
+            // 用于判断当前收到的信息是否为服务器心跳，根据自己的实际情况实现
+            @Override
+            public boolean isServerHeartbeat(OriginReadData orginReadData) {
+                try {
+                    String s = orginReadData.getBodyString();
+                    JSONObject jsonObject = new JSONObject(s);
+                    if (jsonObject.has("msgId") && "heart_beat".equals(jsonObject.getString("msgId"))) {
+                        LogUtil.d("---> 收到服务端心跳");
+                        return true;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return false;
+            }
+        });
     }
 
     private void initView() {
@@ -76,19 +228,20 @@ public class MainActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setTitle("首页");
         }
-        RefreshLayout refreshLayout = (RefreshLayout)findViewById(R.id.refreshLayout);
+        RefreshLayout refreshLayout = (RefreshLayout) findViewById(R.id.refreshLayout);
         refreshLayout.setRefreshHeader(new ClassicsHeader(this));
         refreshLayout.setRefreshFooter(new ClassicsFooter(this));
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
-                refreshlayout.finishRefresh(2000/*,false*/);//传入false表示刷新失败
+                AlarmManager.getInstance(getApplicationContext()).getList();
+                refreshlayout.finishRefresh(2000);//传入false表示刷新失败
             }
         });
         refreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(RefreshLayout refreshlayout) {
-                refreshlayout.finishLoadMore(2000/*,false*/);//传入false表示加载失败
+                refreshlayout.finishLoadMore(2000);//传入false表示加载失败
             }
         });
         normalAdapter = new NormalAdapter();
@@ -99,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), NotificationDetailsActivity.class);
                 intent.putExtra("url", itemBean.url);
                 intent.putExtra("id", itemBean.id);
+                intent.putExtra("content","写死列表来的测试数据");
                 startActivity(intent);
             }
         });
@@ -113,6 +267,12 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        // TODO: 2021/7/12 测试代码
+                        //if(list == null){
+                        list.add(new ItemBean(1, "百度", "www.baidu.com"));
+                        list.add(new ItemBean(2, "火辣辣", "www.huolala.cn"));
+                        // }
+
                         normalAdapter.setDatas(list);
                     }
                 });
@@ -136,6 +296,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
 
     //设置通知栏消息样式
     private void setNotification(int type) {
