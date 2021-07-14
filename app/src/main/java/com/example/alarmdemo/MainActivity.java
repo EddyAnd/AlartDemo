@@ -43,7 +43,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AlarmManager.ConfigCall {
     RecyclerView recyclerView;
     NormalAdapter normalAdapter;
     int num = 0;
@@ -139,19 +139,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
-        createConnect();
+
     }
 
     /**
      * 创建socket连接
      */
-    private void createConnect() {
+    private void createConnect(String ip, int port) {
         if (isConnected) {
             Toast.makeText(MainActivity.this, "Socket已连接", Toast.LENGTH_SHORT).show();
             return;
         }
         // 初始化socket
-        initEasySocket();
+        initEasySocket(ip, port);
         // 监听socket行为
         EasySocket.getInstance().subscribeSocketAction(socketActionListener);
     }
@@ -159,11 +159,11 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 初始化EasySocket
      */
-    private void initEasySocket() {
+    private void initEasySocket(String ip, int port) {
         // socket配置
         EasySocketOptions options = new EasySocketOptions.Builder()
                 // 主机地址，请填写自己的IP地址，以getString的方式是为了隐藏作者自己的IP地址
-                .setSocketAddress(new SocketAddress(getResources().getString(R.string.local_ip), 9090))
+                .setSocketAddress(new SocketAddress(ip, port))
                 .setCallbackIDFactory(new CallbackIDFactoryImpl())
                 // 定义消息协议，方便解决 socket黏包、分包的问题，如果客户端定义了消息协议，那么
                 // 服务端也要对应对应的消息协议，如果这里没有定义消息协议，服务端也不需要定义
@@ -203,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
+        AlarmManager.getInstance(getApplication()).setConfigCall(this);
         findViewById(R.id.test).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -248,7 +249,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycle_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(normalAdapter);
-        AlarmManager.getInstance(getApplicationContext()).getList();
+        AlarmManager.getInstance(getApplicationContext()).getConfig();
+
         AlarmManager.getInstance(getApplicationContext()).setListCall(new AlarmManager.ListCall() {
             @Override
             public void listCall(final ArrayList<ItemBean> list) {
@@ -263,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        AlarmManager.getInstance(getApplicationContext()).startUpdateGpsService();
+
         AlarmManager.getInstance(getApplicationContext()).setAlarmCall(new AlarmManager.AlarmCall() {
             @Override
             public void callAlarm(AlarmResponseBean bean, String title, int hour, int minute) {
@@ -303,4 +305,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void configCall(ConfigBean configBean) {
+        createConnect(configBean.socket_domain, Integer.parseInt(configBean.socket_port));
+        AlarmManager.getInstance(getApplicationContext()).startAlarmService();
+    }
 }

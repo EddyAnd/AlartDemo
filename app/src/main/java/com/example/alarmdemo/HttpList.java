@@ -9,6 +9,9 @@ import retrofit2.http.Query;
 
 
 public interface HttpList {
+    @GET("config")
+    Call<ConfigBean> getConfig();
+
     @GET("msg")
     Call<AlarmResponseBean> getAlarmSetting(@Query("deviceId") String deviceId);
 

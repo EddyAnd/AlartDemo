@@ -26,8 +26,12 @@ public class AlarmManager {
     public static volatile AlarmManager instance = null;
     public AlarmCall mAlarmCall;
     public ListCall mListCall;
+
+    public ConfigCall mConfigCall;
     private Retrofit mRetrofit;
     private Context mContext;
+    private String mHost;
+    public int mTime;
 
     private AlarmManager(Context context) {
         this.mContext = context;
@@ -46,9 +50,21 @@ public class AlarmManager {
     }
 
     private void initHttpBase() {
-        mRetrofit = new Retrofit.Builder().baseUrl("https://it.kiss250.com/app/").addConverterFactory(GsonConverterFactory.create()).callbackExecutor(Executors.newSingleThreadExecutor()).build();
+        if (TextUtils.isEmpty(mHost)) {
+            mHost = "https://it.kiss250.com/app/";
+        }
+        mRetrofit = new Retrofit.Builder().baseUrl(mHost).addConverterFactory(GsonConverterFactory.create()).callbackExecutor(Executors.newSingleThreadExecutor()).build();
 
     }
+
+    public ConfigCall getConfigCall() {
+        return mConfigCall;
+    }
+
+    public void setConfigCall(ConfigCall mConfigCall) {
+        this.mConfigCall = mConfigCall;
+    }
+
 
     public void setAlarmCall(AlarmCall mAlarmCall) {
         this.mAlarmCall = mAlarmCall;
@@ -56,6 +72,35 @@ public class AlarmManager {
 
     public void setListCall(ListCall mListCall) {
         this.mListCall = mListCall;
+    }
+
+    public void getConfig() {
+        HttpList httpList = mRetrofit.create(HttpList.class);
+        Call<ConfigBean> call = httpList.getConfig();
+        call.enqueue(new Callback<ConfigBean>() {
+            @Override
+            public void onResponse(Call<ConfigBean> call, Response<ConfigBean> response) {
+                if (response != null && response.body() != null) {
+                    Log.e("=====返回config", new Gson().toJson(response.body()));
+                    mTime = response.body().timer;
+                    if (mConfigCall != null) {
+                        mConfigCall.configCall(response.body());
+                    }
+                    if (!TextUtils.isEmpty(response.body().domain)) {
+                        mHost = response.body().domain + "/app/";
+                        initHttpBase();
+                        getList();
+                    }
+                }
+
+
+            }
+
+            @Override
+            public void onFailure(Call<ConfigBean> call, Throwable t) {
+                Log.e("====", "list: 网络请求失败=" + t.getMessage());
+            }
+        });
     }
 
     public void postHttp() {
@@ -68,7 +113,6 @@ public class AlarmManager {
                 Log.e("=====msg:", new Gson().toJson(bean));
                 if (bean != null && !TextUtils.isEmpty(bean.title)) {
                     Calendar c = Calendar.getInstance();
-                    Log.e("=====msg:", c.get(Calendar.HOUR_OF_DAY) + "------" + c.get(Calendar.MINUTE));
                     if (mAlarmCall != null) {
                         mAlarmCall.callAlarm(bean, bean.title, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE) + 1);
                     }
@@ -125,7 +169,7 @@ public class AlarmManager {
      * 开启服务
      */
 
-    public void startUpdateGpsService() {
+    public void startAlarmService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mContext.startForegroundService(new Intent(mContext, AlarmService.class));
         } else {
@@ -150,5 +194,8 @@ public class AlarmManager {
         void listCall(ArrayList<ItemBean> list);
     }
 
+    public interface ConfigCall {
+        void configCall(ConfigBean configBean);
+    }
 
 }

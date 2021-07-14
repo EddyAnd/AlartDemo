@@ -16,11 +16,13 @@ import androidx.annotation.Nullable;
 public class AlarmService extends Service {
     private static String CHANNEL_ID = "gps";
     private static String CHANNEL_NAME = "update_gps";
-    private int mAcquisitionInterval = 10;// 5秒采集一次
+    private int mAcquisitionInterval = 5;// 10秒采集一次
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        mAcquisitionInterval = AlarmManager.getInstance(getApplication()).mTime;
         startForeground();
     }
 
@@ -67,6 +69,5 @@ public class AlarmService extends Service {
 
 
     }
-
 
 }
