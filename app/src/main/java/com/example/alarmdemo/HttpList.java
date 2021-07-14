@@ -9,12 +9,12 @@ import retrofit2.http.Query;
 
 
 public interface HttpList {
-    @GET("/msg")
+    @GET("msg")
     Call<AlarmResponseBean> getAlarmSetting(@Query("deviceId") String deviceId);
 
-    @GET("/reply")
+    @GET("reply")
     Call<ResponseBody> replyId(@Query("id") int id);
 
-    @GET("/list")
+    @GET("list")
     Call<ArrayList<ItemBean>> getList(@Query("deviceId") String deviceId);
 }

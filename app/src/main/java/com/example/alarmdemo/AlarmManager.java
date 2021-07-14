@@ -3,6 +3,7 @@ package com.example.alarmdemo;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -45,7 +46,7 @@ public class AlarmManager {
     }
 
     private void initHttpBase() {
-        mRetrofit = new Retrofit.Builder().baseUrl("https://it.kiss250.com/").addConverterFactory(GsonConverterFactory.create()).callbackExecutor(Executors.newSingleThreadExecutor()).build();
+        mRetrofit = new Retrofit.Builder().baseUrl("https://it.kiss250.com/app/").addConverterFactory(GsonConverterFactory.create()).callbackExecutor(Executors.newSingleThreadExecutor()).build();
 
     }
 
@@ -64,20 +65,19 @@ public class AlarmManager {
             @Override
             public void onResponse(Call<AlarmResponseBean> call, Response<AlarmResponseBean> response) {
                 AlarmResponseBean bean = response.body();
-                Log.e("=====", new Gson().toJson(bean));
+                Log.e("=====msg:", new Gson().toJson(bean));
                 if (bean != null && !TextUtils.isEmpty(bean.title)) {
                     Calendar c = Calendar.getInstance();
-                    Log.e("=====", c.get(Calendar.HOUR_OF_DAY) + "------" + c.get(Calendar.MINUTE));
+                    Log.e("=====msg:", c.get(Calendar.HOUR_OF_DAY) + "------" + c.get(Calendar.MINUTE));
                     if (mAlarmCall != null) {
                         mAlarmCall.callAlarm(bean, bean.title, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE) + 1);
                     }
-                    // createAlarm(bean.title, c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE) + 1);
                 }
             }
 
             @Override
             public void onFailure(Call<AlarmResponseBean> call, Throwable t) {
-                Log.e("====", "msg: 网络请求失败=" + t.getMessage());
+                Log.e("====msg:", " 网络请求失败=" + t.getMessage());
 
             }
         });
@@ -100,10 +100,6 @@ public class AlarmManager {
             @Override
             public void onFailure(Call<ArrayList<ItemBean>> call, Throwable t) {
                 Log.e("====", "list: 网络请求失败=" + t.getMessage());
-                // TODO: 2021/7/12 测试代码 
-                if (mListCall != null) {
-                    mListCall.listCall(new ArrayList<ItemBean>());
-                }
             }
         });
     }
@@ -114,12 +110,12 @@ public class AlarmManager {
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Log.e("====repaly", "成功==" + response.code());
+                Log.e("====reply", "成功==" + response.code());
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.e("====repaly", "reply: 网络请求失败=" + t.getMessage());
+                Log.e("====reply", "reply: 网络请求失败=" + t.getMessage());
 
             }
         });
@@ -130,11 +126,11 @@ public class AlarmManager {
      */
 
     public void startUpdateGpsService() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            mContext.startForegroundService(new Intent(mContext, AlarmService.class));
-//        } else {
-//            mContext.startService(new Intent(mContext, AlarmService.class));
-//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mContext.startForegroundService(new Intent(mContext, AlarmService.class));
+        } else {
+            mContext.startService(new Intent(mContext, AlarmService.class));
+        }
     }
 
     /**

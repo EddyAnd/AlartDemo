@@ -3,6 +3,7 @@ package com.example.alarmdemo;
 import android.app.NotificationManager;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -25,17 +26,7 @@ public class NotificationDetailsActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.tb_register_back);
         setSupportActionBar(toolbar);
         textView = findViewById(R.id.content);
-
-        textView.setText(Html.fromHtml(getIntent().getStringExtra("content")));
-//        webView = (WebView) findViewById(R.id.web_view);
-//        webView.loadUrl(getIntent().getStringExtra("url"));
-//        //系统默认会通过手机浏览器打开网页，为了能够直接通过WebView显示网页，则必须设置
-//        webView.setWebViewClient(new WebViewClient() {
-//            @Override
-//            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-//                return super.shouldOverrideUrlLoading(view, request);
-//            }
-//        });
+        webView = (WebView) findViewById(R.id.web_view);
         //显示返回按钮
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -43,6 +34,25 @@ public class NotificationDetailsActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle("详情");
         }
+        if(getIntent().hasExtra("content")){
+            if(!TextUtils.isEmpty((getIntent().getStringExtra("content")))){
+
+                textView.setText(Html.fromHtml(getIntent().getStringExtra("content")));
+            }
+        }
+        if(getIntent().hasExtra("url")){
+            if(!TextUtils.isEmpty((getIntent().getStringExtra("url")))){
+                webView.loadUrl(getIntent().getStringExtra("url"));
+                //系统默认会通过手机浏览器打开网页，为了能够直接通过WebView显示网页，则必须设置
+                webView.setWebViewClient(new WebViewClient() {
+                    @Override
+                    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                        return super.shouldOverrideUrlLoading(view, request);
+                    }
+                });
+            }
+        }
+
 
 //        当点击通知消息跳转到详情页时根据通知消息的id关闭通知栏的显示
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
