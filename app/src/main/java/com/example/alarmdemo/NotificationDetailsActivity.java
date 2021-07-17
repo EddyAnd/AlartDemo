@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -36,12 +37,13 @@ public class NotificationDetailsActivity extends AppCompatActivity {
         }
         if(getIntent().hasExtra("content")){
             if(!TextUtils.isEmpty((getIntent().getStringExtra("content")))){
-
+                textView.setVisibility(View.VISIBLE);
                 textView.setText(Html.fromHtml(getIntent().getStringExtra("content")));
             }
         }
         if(getIntent().hasExtra("url")){
             if(!TextUtils.isEmpty((getIntent().getStringExtra("url")))){
+                webView.setVisibility(View.VISIBLE);
                 webView.loadUrl(getIntent().getStringExtra("url"));
                 //系统默认会通过手机浏览器打开网页，为了能够直接通过WebView显示网页，则必须设置
                 webView.setWebViewClient(new WebViewClient() {
