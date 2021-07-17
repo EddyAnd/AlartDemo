@@ -1,4 +1,4 @@
-package com.example.alarmdemo;
+package com.example.alarmdemo.bean;
 
 /**
  * @copyright：深圳依时货拉拉科技有限公司

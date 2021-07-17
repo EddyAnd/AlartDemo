@@ -7,6 +7,11 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.example.alarmdemo.bean.AlarmResponseBean;
+import com.example.alarmdemo.bean.ConfigBean;
+import com.example.alarmdemo.bean.ItemBean;
+import com.example.alarmdemo.service.AlarmService;
+import com.example.alarmdemo.utils.DeviceIdUtils;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -26,8 +31,8 @@ public class AlarmManager {
     public static volatile AlarmManager instance = null;
     public AlarmCall mAlarmCall;
     public ListCall mListCall;
-
     public ConfigCall mConfigCall;
+
     private Retrofit mRetrofit;
     private Context mContext;
     private String mHost;

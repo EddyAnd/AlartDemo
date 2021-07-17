@@ -27,19 +27,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SocketActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".mvp.activity.SocketActivity" />
+        <activity android:name=".mvp.activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".NotificationDetailsActivity" />
+        <activity android:name=".mvp.activity.NotificationDetailsActivity" />
 
-        <receiver android:name=".AutoUpdateReceiver" />
+        <receiver android:name=".service.AutoUpdateReceiver" />
 
-        <service android:name=".AlarmService" />
+        <service android:name=".service.AlarmService" />
     </application>
 
 </manifest>

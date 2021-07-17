@@ -1,4 +1,4 @@
-package com.example.alarmdemo;
+package com.example.alarmdemo.constant;
 
 public class Constant {
     public static Integer TYPE1 = 1;

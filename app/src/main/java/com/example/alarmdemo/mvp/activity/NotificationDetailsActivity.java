@@ -1,4 +1,4 @@
-package com.example.alarmdemo;
+package com.example.alarmdemo.mvp.activity;
 
 import android.app.NotificationManager;
 import android.os.Bundle;
@@ -14,6 +14,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import com.example.alarmdemo.AlarmManager;
+import com.example.alarmdemo.R;
+import com.example.alarmdemo.constant.Constant;
 
 public class NotificationDetailsActivity extends AppCompatActivity {
     WebView webView;
@@ -60,7 +64,7 @@ public class NotificationDetailsActivity extends AppCompatActivity {
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         manager.cancel(Constant.TYPE1);
         manager.cancel(Constant.TYPE2);
-        manager.cancel(Constant.TYPE2);
+        manager.cancel(Constant.TYPE3);
         AlarmManager.getInstance(getApplicationContext()).postReply(getIntent().getIntExtra("id", 0));
     }
 

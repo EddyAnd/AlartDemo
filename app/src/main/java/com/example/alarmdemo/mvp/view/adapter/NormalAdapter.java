@@ -1,4 +1,4 @@
-package com.example.alarmdemo;
+package com.example.alarmdemo.mvp.view.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -6,6 +6,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.alarmdemo.R;
+import com.example.alarmdemo.bean.ItemBean;
 
 import java.util.ArrayList;
 

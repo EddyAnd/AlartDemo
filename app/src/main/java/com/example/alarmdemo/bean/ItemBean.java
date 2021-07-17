@@ -1,4 +1,4 @@
-package com.example.alarmdemo;
+package com.example.alarmdemo.bean;
 
 public class ItemBean {
     public int id;

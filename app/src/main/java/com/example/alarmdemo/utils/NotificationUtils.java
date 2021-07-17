@@ -1,4 +1,4 @@
-package com.example.alarmdemo;
+package com.example.alarmdemo.utils;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;

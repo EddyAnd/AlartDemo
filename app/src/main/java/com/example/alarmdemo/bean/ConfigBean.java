@@ -1,4 +1,4 @@
-package com.example.alarmdemo;
+package com.example.alarmdemo.bean;
 
 public class ConfigBean {
    public String socket_domain;

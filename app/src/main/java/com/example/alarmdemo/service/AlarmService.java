@@ -1,4 +1,4 @@
-package com.example.alarmdemo;
+package com.example.alarmdemo.service;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -11,6 +11,8 @@ import android.os.IBinder;
 import android.os.SystemClock;
 
 import androidx.annotation.Nullable;
+
+import com.example.alarmdemo.AlarmManager;
 
 
 public class AlarmService extends Service {

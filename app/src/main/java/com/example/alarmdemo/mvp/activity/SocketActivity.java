@@ -1,4 +1,4 @@
-package com.example.alarmdemo;
+package com.example.alarmdemo.mvp.activity;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -25,6 +25,8 @@ import com.easysocket.interfaces.callback.IProgressDialog;
 import com.easysocket.interfaces.conn.ISocketActionListener;
 import com.easysocket.interfaces.conn.SocketActionListener;
 import com.easysocket.utils.LogUtil;
+import com.example.alarmdemo.R;
+import com.example.alarmdemo.bean.JsonBean;
 import com.example.easysocket.CallbackIDFactoryImpl;
 import com.example.easysocket.message.CallbackSender;
 import com.example.easysocket.message.ClientHeartBeat;

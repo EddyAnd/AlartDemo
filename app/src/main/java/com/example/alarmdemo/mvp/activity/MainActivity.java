@@ -1,4 +1,4 @@
-package com.example.alarmdemo;
+package com.example.alarmdemo.mvp.activity;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -28,6 +28,14 @@ import com.easysocket.entity.SocketAddress;
 import com.easysocket.interfaces.conn.ISocketActionListener;
 import com.easysocket.interfaces.conn.SocketActionListener;
 import com.easysocket.utils.LogUtil;
+import com.example.alarmdemo.AlarmManager;
+import com.example.alarmdemo.R;
+import com.example.alarmdemo.bean.AlarmResponseBean;
+import com.example.alarmdemo.bean.ConfigBean;
+import com.example.alarmdemo.bean.ItemBean;
+import com.example.alarmdemo.bean.JsonBean;
+import com.example.alarmdemo.mvp.view.adapter.NormalAdapter;
+import com.example.alarmdemo.utils.NotificationUtils;
 import com.example.easysocket.CallbackIDFactoryImpl;
 import com.example.easysocket.message.ClientHeartBeat;
 import com.google.gson.Gson;

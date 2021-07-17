@@ -1,4 +1,4 @@
-package com.example.alarmdemo;
+package com.example.alarmdemo.utils;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
