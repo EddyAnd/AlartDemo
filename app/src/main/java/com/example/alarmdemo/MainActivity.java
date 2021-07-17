@@ -47,9 +47,6 @@ public class MainActivity extends AppCompatActivity implements AlarmManager.Conf
     RecyclerView recyclerView;
     NormalAdapter normalAdapter;
     int num = 0;
-    private Notification notification;
-    private NotificationCompat.Builder builder;
-    private NotificationManager manager;
     /**
      * 是否已经连接
      **/
@@ -273,6 +270,7 @@ public class MainActivity extends AppCompatActivity implements AlarmManager.Conf
                 Intent intent = new Intent(getApplicationContext(), NotificationDetailsActivity.class);
                 intent.putExtra("id", bean.id);
                 intent.putExtra("url", bean.url);
+                intent.putExtra("content", bean.content);
                 PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), bean.id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 notification(bean.id, bean.title, bean.content, pendingIntent);
             }
