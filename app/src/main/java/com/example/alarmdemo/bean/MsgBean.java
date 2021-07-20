@@ -1,6 +1,6 @@
 package com.example.alarmdemo.bean;
 
-public class AlarmResponseBean {
+public class MsgBean {
     public String title;
     public String url;
     public int id;

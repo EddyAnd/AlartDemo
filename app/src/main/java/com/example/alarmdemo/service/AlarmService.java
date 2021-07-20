@@ -12,19 +12,15 @@ import android.os.SystemClock;
 
 import androidx.annotation.Nullable;
 
-import com.example.alarmdemo.AlarmManager;
-
 
 public class AlarmService extends Service {
     private static String CHANNEL_ID = "gps";
     private static String CHANNEL_NAME = "update_gps";
     private int mAcquisitionInterval = 5;// 10秒采集一次
-
     @Override
     public void onCreate() {
         super.onCreate();
 
-        mAcquisitionInterval = AlarmManager.getInstance(getApplication()).mTime;
         startForeground();
     }
 
@@ -49,9 +45,10 @@ public class AlarmService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        mAcquisitionInterval = intent.getExtras().getInt("time_interval");
         //  判断应用是否在前后台
         startForeground();
-        AlarmManager.getInstance(getApplicationContext()).postHttp();
+        // TODO: 2021/7/19 怎么调用getMsg
         android.app.AlarmManager manager = (android.app.AlarmManager) getSystemService(ALARM_SERVICE);
         long triggerAtTime = SystemClock.elapsedRealtime() + mAcquisitionInterval * 1000;
         Intent intent2 = new Intent(this, AutoUpdateReceiver.class);

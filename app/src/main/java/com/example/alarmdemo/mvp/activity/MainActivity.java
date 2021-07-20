@@ -28,13 +28,18 @@ import com.easysocket.entity.SocketAddress;
 import com.easysocket.interfaces.conn.ISocketActionListener;
 import com.easysocket.interfaces.conn.SocketActionListener;
 import com.easysocket.utils.LogUtil;
-import com.example.alarmdemo.AlarmManager;
 import com.example.alarmdemo.R;
-import com.example.alarmdemo.bean.AlarmResponseBean;
 import com.example.alarmdemo.bean.ConfigBean;
 import com.example.alarmdemo.bean.ItemBean;
 import com.example.alarmdemo.bean.JsonBean;
+import com.example.alarmdemo.bean.MsgBean;
+import com.example.alarmdemo.http.RetrofitManager;
+import com.example.alarmdemo.mvp.contract.MainContract;
+import com.example.alarmdemo.mvp.model.MainModel;
+import com.example.alarmdemo.mvp.presenter.MainPresenter;
 import com.example.alarmdemo.mvp.view.adapter.NormalAdapter;
+import com.example.alarmdemo.service.AlarmService;
+import com.example.alarmdemo.utils.DeviceIdUtils;
 import com.example.alarmdemo.utils.NotificationUtils;
 import com.example.easysocket.CallbackIDFactoryImpl;
 import com.example.easysocket.message.ClientHeartBeat;
@@ -51,9 +56,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity implements AlarmManager.ConfigCall {
+import okhttp3.ResponseBody;
+
+public class MainActivity extends AppCompatActivity implements MainContract.View {
     RecyclerView recyclerView;
     NormalAdapter normalAdapter;
+    MainPresenter mMainPresenter;
     int num = 0;
     /**
      * 是否已经连接
@@ -113,8 +121,8 @@ public class MainActivity extends AppCompatActivity implements AlarmManager.Conf
                     Intent intent = new Intent(getApplicationContext(), NotificationDetailsActivity.class);
                     intent.putExtra("content", json.data.content);
                     intent.putExtra("id", id);
-                    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                    notification(id,  json.data.title, json.data.content, pendingIntent);
+                    PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    notification(id, json.data.title, json.data.content, pendingIntent);
                 }
             }
         }
@@ -143,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements AlarmManager.Conf
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mMainPresenter = new MainPresenter(this, new MainModel());
         initView();
 
     }
@@ -208,7 +217,6 @@ public class MainActivity extends AppCompatActivity implements AlarmManager.Conf
     }
 
     private void initView() {
-        AlarmManager.getInstance(getApplication()).setConfigCall(this);
         findViewById(R.id.test).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -230,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements AlarmManager.Conf
         refreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
-                AlarmManager.getInstance(getApplicationContext()).getList();
+                mMainPresenter.getList(DeviceIdUtils.getDeviceId(getApplicationContext()));
                 refreshlayout.finishRefresh(2000);//传入false表示刷新失败
             }
         });
@@ -254,40 +262,8 @@ public class MainActivity extends AppCompatActivity implements AlarmManager.Conf
         recyclerView = findViewById(R.id.recycle_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(normalAdapter);
-        AlarmManager.getInstance(getApplicationContext()).getConfig();
-
-        AlarmManager.getInstance(getApplicationContext()).setListCall(new AlarmManager.ListCall() {
-            @Override
-            public void listCall(final ArrayList<ItemBean> list) {
-                Log.e("===list", new Gson().toJson(list));
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        normalAdapter.setDatas(list);
-                    }
-                });
-
-            }
-        });
-
-
-        AlarmManager.getInstance(getApplicationContext()).setAlarmCall(new AlarmManager.AlarmCall() {
-            @Override
-            public void callAlarm(AlarmResponseBean bean, String title, int hour, int minute) {
-                // wakeUpAndUnlock(getApplicationContext());
-                Intent intent = new Intent(getApplicationContext(), NotificationDetailsActivity.class);
-                intent.putExtra("id", bean.id);
-                intent.putExtra("url", bean.url);
-                intent.putExtra("content", bean.content);
-                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), bean.id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                notification(bean.id, bean.title, bean.content, pendingIntent);
-            }
-        });
-
-
+        mMainPresenter.getConfig();
     }
-
-
 
 
     private void notification(int id, String title, String content, PendingIntent intent) {
@@ -312,8 +288,72 @@ public class MainActivity extends AppCompatActivity implements AlarmManager.Conf
 
 
     @Override
-    public void configCall(ConfigBean configBean) {
+    public void getConfigSuccess(ConfigBean configBean) {
+        if (configBean == null) {
+            Toast.makeText(this, "获取配置信息失败", Toast.LENGTH_LONG).show();
+            return;
+
+        }
         createConnect(configBean.socket_domain, Integer.parseInt(configBean.socket_port));
-        AlarmManager.getInstance(getApplicationContext()).startAlarmService();
+        if (!TextUtils.isEmpty(configBean.domain)) {
+            RetrofitManager.getInstance().setHost(configBean.domain + "/app/");
+            startAlarmService(configBean.timer);
+            //getList();
+        }
+    }
+
+    @Override
+    public void getFail(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void getMsgSuccess(MsgBean msgBean) {
+        Intent intent = new Intent(getApplicationContext(), NotificationDetailsActivity.class);
+        intent.putExtra("id", msgBean.id);
+        intent.putExtra("url", msgBean.url);
+        intent.putExtra("content", msgBean.content);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), msgBean.id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        notification(msgBean.id, msgBean.title, msgBean.content, pendingIntent);
+    }
+
+    @Override
+    public void getListSuccess(ArrayList<ItemBean> list) {
+        normalAdapter.setDatas(list);
+    }
+
+    @Override
+    public void getReplySuccess(ResponseBody body) {
+        Log.e("====reply", "成功==");
+    }
+
+    /**
+     * 开启服务
+     */
+
+    public void startAlarmService(int interval) {
+        Intent intent = new Intent(getApplicationContext(), AlarmService.class);
+        intent.putExtra("time_interval", interval);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
+    }
+
+    /**
+     * 停止服务
+     */
+
+    public void stopUpdateGpsService() {
+        stopService(new Intent(getApplicationContext(), AlarmService.class));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopUpdateGpsService();
+        EasySocket.getInstance().disconnect(false);
+        EasySocket.getInstance().destroyConnection();
     }
 }

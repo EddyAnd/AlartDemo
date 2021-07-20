@@ -15,7 +15,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.example.alarmdemo.AlarmManager;
 import com.example.alarmdemo.R;
 import com.example.alarmdemo.constant.Constant;
 
@@ -39,14 +38,14 @@ public class NotificationDetailsActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle("详情");
         }
-        if(getIntent().hasExtra("content")){
-            if(!TextUtils.isEmpty((getIntent().getStringExtra("content")))){
+        if (getIntent().hasExtra("content")) {
+            if (!TextUtils.isEmpty((getIntent().getStringExtra("content")))) {
                 textView.setVisibility(View.VISIBLE);
                 textView.setText(Html.fromHtml(getIntent().getStringExtra("content")));
             }
         }
-        if(getIntent().hasExtra("url")){
-            if(!TextUtils.isEmpty((getIntent().getStringExtra("url")))){
+        if (getIntent().hasExtra("url")) {
+            if (!TextUtils.isEmpty((getIntent().getStringExtra("url")))) {
                 webView.setVisibility(View.VISIBLE);
                 webView.loadUrl(getIntent().getStringExtra("url"));
                 //系统默认会通过手机浏览器打开网页，为了能够直接通过WebView显示网页，则必须设置
@@ -65,7 +64,8 @@ public class NotificationDetailsActivity extends AppCompatActivity {
         manager.cancel(Constant.TYPE1);
         manager.cancel(Constant.TYPE2);
         manager.cancel(Constant.TYPE3);
-        AlarmManager.getInstance(getApplicationContext()).postReply(getIntent().getIntExtra("id", 0));
+        // TODO: 2021/7/19 怎么调用getReply
+
     }
 
     /**
